@@ -1,0 +1,14 @@
+;    Language Pack
+;    auth
+;    - de -
+
+form_login_title = "Login"
+form_login_field_login = "Login"
+form_login_field_password = "Passwort"
+form_login_submit = "Anmelden"
+
+msg_login_success = "Anmeldung erfolgreich"
+msg_login_failed = "Anmeldung nicht möglich. Bitte überprüfen Sie Benutzername und Passwort."
+msg_logout_success = "Abmeldung erfolgreich"
+
+logout_msg = "Danke und bis bald!"

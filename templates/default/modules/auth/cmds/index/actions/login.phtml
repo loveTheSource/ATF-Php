@@ -1,0 +1,18 @@
+<div class="action action_login">
+	<form id="login" action="<?php echo $obj->getCurrentLink();?>" method="post">
+		<h3><?php echo $obj->getLangText('auth', 'form_login_title');?></h3>
+		<div class="row">
+			<div class="descr"><?php echo $obj->getLangText('auth', 'form_login_field_login');?></div>
+			<div class="field"><input type="text" name="auth_login" value="" /></div>
+		</div>
+		
+		<div class="row">
+			<div class="descr"><?php echo $obj->getLangText('auth', 'form_login_field_password');?></div>
+			<div class="field"><input type="password" name="auth_password" value="" /></div>
+		</div>
+		
+		<div class="row">
+			<div class="submit"><input type="submit" value="<?php echo $obj->getLangText('auth', 'form_login_submit');?>" /></div>
+		</div>
+	</form>
+</div>

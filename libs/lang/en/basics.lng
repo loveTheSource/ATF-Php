@@ -1,0 +1,22 @@
+;    Language Pack
+;    basics
+;    - en -
+
+decision_yes = "Yes"
+decision_no = "No"
+
+system_error = "An Error occured. Please try again later or contact the support."
+
+message_403 = "You do not have the required rights to access this page"
+message_404 = "The requested site does not exists"
+
+; ===== date formats =====
+dateformat_date = "m.d.Y"
+dateformat_date_time = "m.d.Y h:i:s A"
+dateformat_time = "h:i:s A"
+dateformat_timeshort = "h:i a"
+dateformat_mysql = "Y-m-d H:i:s"
+
+
+; ===== math / currency =====
+decimal_separator = "."

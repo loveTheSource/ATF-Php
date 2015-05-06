@@ -1,0 +1,27 @@
+
+templates structure
+=========================
+
+..
+templates/										// templates folder
+	default/									// skin name
+		index.phtml								// main template (html structure..)
+		base/									// base templates
+		modules/								// modules
+			index/								// module named index
+				module.phtml					// module template (optional - uses default module templ if missing)
+				cmds/							// cmds in module index
+					index/						// cmd named index
+						cmd.phtml				// cmd template (optional - uses default cmd templ if missing)
+						actions/				// actions in cmd index
+							index.phtml			// action template index (file needs exactly the same name as the action)
+							index2.phtml		// action template index2 (file needs exactly the same name as the action)
+							...
+					index2/						// cmd named index2
+						...
+						
+			index2/								// module named index2
+				...
+
+	
+	

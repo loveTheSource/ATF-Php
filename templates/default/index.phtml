@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="<?php echo $obj->document->getLanguage();?>">
+	<head>
+		<meta charset="<?php echo $obj->document->getCharset();?>"> 
+		<title><?php echo $obj->document->getTitle();?></title>
+		<?php 
+		foreach ($obj->document->getCssFiles() AS $css) {
+			echo '<link rel="stylesheet" type="text/css" href="' . $css['file'] . '" media="' . $css['media'] . '" />';
+		}
+		
+		foreach ($obj->document->getJsFiles() AS $jsFile) {
+			echo '<script type="text/javascript" src="' . $jsFile . '"></script>';
+		}
+		if ($obj->document->hasJsModules()) {
+			echo '<script type="text/javascript" src="' . $obj->getWeblink() . 'js/jquery/jquery-2.1.3.min.js"></script>';
+			echo '<script type="text/javascript" src="' . $obj->getWeblink() . 'js/jquery/jquery-ui/jquery-ui.min.js"></script>';
+			echo '<script type="text/javascript" src="' . $obj->getWeblink() . 'js/project.js"></script>';
+			foreach ($obj->document->getJsModules() AS $jsModule) {
+				echo '<script type="text/javascript" src="' . $jsModule['file'] . '"></script>';
+			}
+		}
+		
+		if ($obj->document->getFavicon()) {
+			echo '<link rel="icon" href="' . $obj->document->getFavicon() . '" />';
+			echo '<!--[if IE]><link rel="shortcut icon" href="' . $obj->document->getFavicon() . '" /><![endif]-->';
+		}
+		
+		?>
+	</head>
+	
+	<body>
+	<div class="container">
+		<?php echo $obj->getHelper('messages');?>
+		<?php echo $data['module_html'];?>
+	</div>	
+			
+	</body>
+	<?php if ($obj->document->hasJsModules()) { ?>
+	<script type="text/javascript">
+	function initJsModules() {
+		atfJs = new Project({
+			object_name: 'atfJs',
+			project_url: '<?php echo $obj->getWeblink(); ?>',
+			current_url: '<?php echo $obj->getCurrentLink(); ?>',
+			modules: [ <?php 
+			$files = 0;
+			foreach($obj->document->getJsModules() AS $jsmod) { 
+				if ($files != 0) echo ", ";
+				echo "'".$jsmod['module']."'";
+				$files++; 
+			}
+			?> ]
+		});
+	}
+	window.onload=initJsModules;
+	</script>
+	<?php } ?>
+</html>
