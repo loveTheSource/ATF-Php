@@ -3,6 +3,9 @@
 
 Small, fast and lightweight MVC framework for PHP 5.4+
 
+## State of development
+This software is in early alpha status. Not ready for productive use (yet)
+
 ### Requirements
 PHP 5.4+ running on a Webserver (e.g. Apache2) with mod_rewrite enabled  
 
@@ -45,7 +48,7 @@ Well, in that case you should consider:
 * Free choice of template engine
 * Clean bootstrap proccess
 * Autoloader for all relevant classes
-* A complete framework in less than 10000 lines of source (including PHPDoc-style comments)
+* A complete framework in less than 10.000 lines of source (including PHPDoc-style comments)
 * Freedom to design your application the way you prefer to
 
 
