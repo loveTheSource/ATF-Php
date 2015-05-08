@@ -24,19 +24,8 @@ class CmdIndex extends \ATFApp\Modules\BaseCmds {
 	 * @return multitype:array|string
 	 */
 	public function indexAction() {
-		$validator = new Helper\Validator();
-		
-		$data = array('value1' => '', 'value2' => "wef", 'value3' => '');
-		$methods = array('value1' => array('required', 'minlen:3'), 'value2' => array('int'), 'value3'=>array());
-		
-		$res = $validator->validate($data, $methods);
-		if ($res) {
-			var_dump("success");
-		} else {
-			#var_dump($validator->getErrors());
-		}
-
-		return array("msg" => "Welcome");
+		# return an array 
+		return array("name" => "ATF-Php");
 	}
 	
 }

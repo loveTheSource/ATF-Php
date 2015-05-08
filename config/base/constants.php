@@ -13,7 +13,7 @@ class ProjectConstants extends ConstantsDefaults {
 	const DEFAULT_LANG = "de";
 	
 	// profiler
-	const PROFILER_ENABLED = true;
+	const PROFILER_ENABLED = false;
 	
 	// maintenance mode enabled
 	const MAINTENANCE_MODE = false;
