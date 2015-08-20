@@ -29,6 +29,9 @@ class StatementHandler {
 			$before = microtime(true);
 		}
 		
+		$db = Core\Factory::getDbObj();
+		$db->logQuery($this->statement->queryString . implode(', ', $params), 'exec');
+		
 		$result = $this->statement->execute($params);
 		
 		if ($profilerInUse) {

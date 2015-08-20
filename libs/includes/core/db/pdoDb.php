@@ -21,7 +21,7 @@ class PdoDb extends \PDO {
 		return parent::exec($statement);
 	}
 	
-	private function logQuery($query, $method=null) {
+	public function logQuery($query, $method=null) {
 		if (ProjectConstants::DB_LOGGING === true) {
 			$part = strtolower(substr(trim($query), 0, 6));
 			if (in_array($part, $this->statementsToLog)) {
