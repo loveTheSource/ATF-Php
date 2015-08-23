@@ -148,10 +148,7 @@ class Auth {
 	 * @param string $pass
 	 */
 	public function checkLogin($login, $pass) {
-		// TODO change to password_hash in PHP 5.5+
-		// use hash_equals for Timing attack safe string comparison
-		$salt = '$2a$07$' . $this->getSalt() . '$';
-		$passCrypt = crypt($pass, $salt);
+		$passCrypt = $this->getPasswordHash($pass);
 		$db = Core\Factory::getDbObj();
 		
 		$query = "SELECT 
@@ -220,6 +217,14 @@ class Auth {
 		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_MODEL_USER);
 	}
 	
+	public function getPasswordHash($password) {
+		// TODO change to password_hash in PHP 5.5+
+		// use hash_equals for Timing attack safe string comparison
+		$salt = '$2a$07$' . $this->getSalt() . '$';
+		$passCrypt = crypt($password, $salt);
+		return $passCrypt;
+	}
+
 	private function getSalt() {
 		$salt = trim(file_get_contents(INCLUDES_PATH . 'slt.txt'));
 		if (empty($salt)) {
