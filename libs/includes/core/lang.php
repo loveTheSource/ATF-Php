@@ -11,7 +11,7 @@ use ATFApp\Core as Core;
 
 class Lang {
 
-	private $langPacks = array();
+	private $langPacks = [];
 	private $langCodes = null;
 
 	private static $instance = null;
@@ -75,7 +75,7 @@ class Lang {
 			} elseif ($format!=false) {
 				// return formated string
 				if (is_array($format)) {
-					return vsprintf($this->langPacks[$pack][$key], $format);
+					return vsprintf($format, $this->langPacks[$pack][$key]);
 				} elseif (is_string($format) || is_numeric($format)) {
 					return sprintf($this->langPacks[$pack][$key], $format);
 				} else {
@@ -131,16 +131,13 @@ class Lang {
 	}
 
 	private function loadLanguageList() {
-		/*
 		$confObj = basic_includer::getConfigObj();
 		$conf = $confObj->getConfig('languages_config');
 		if ( !is_null($conf) ) {
 			return $conf;
 		} else {
-			return array();
+			return [];
 		}
-		*/
-		return array('de' => array('enabled'=>'1', 'native_name'=>'deutsch') );
 	}
 
 	// TODO report missing translation

@@ -12,25 +12,20 @@ use ATFApp\Core as Core;
 abstract class BaseModel {
 	
 	public function __set($key, $value) {
-		if (property_exists($this, $key)) {
+		if (in_array($key, $this->tableColumns)) {
 			$this->$key = $value;
-		} else {
-			$map = $this->getColumnMappings();
-			if (array_key_exists($key, $map)) {
-				$key = $map[$key];
-				$this->$key = $value;
-			}
 		}
 	}
-	
+
 	/**
 	 * get from query cache
+	 * 
 	 * @param string $key
 	 * @return array
 	 */
 	public function getFromQueryCache($key) {
 		$cacheData = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBALS_MODELS_QUERY_CACHE);
-		if (!is_array($cacheData)) $cacheData = array();
+		if (!is_array($cacheData)) $cacheData = [];
 		
 		if (array_key_exists($key, $cacheData)) {
 			$counter = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBALS_MODELS_QUERY_CACHE_COUNT);
@@ -53,29 +48,39 @@ abstract class BaseModel {
 	 */
 	public function saveToQueryCache($key, $data) {
 		$cacheData = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBALS_MODELS_QUERY_CACHE);
-		if (!is_array($cacheData)) $cacheData = array();
+		if (!is_array($cacheData)) $cacheData = [];
 		$cacheData[$key] = $data;
 		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBALS_MODELS_QUERY_CACHE, $cacheData);
 	}
 	
-	public function getColumnMappings() {
-		if (isset($this->columnMappings)) {
-			return $this->columnMappings;
-		} else {
-			return array();
-		}		
-	}
-	
+	/**
+	 * current model table
+	 * 
+	 * @return string
+	 */
 	public function getTable() {
 		return $this->table;
 	}
 	
+	/**
+	 * primary key columns
+	 * 
+	 * @return array
+	 */
 	public function getPrimaryKeyColumns() {
-		return $this->primaryKeyColumns;
+		return $this->tablePrimaryKeys;
 	}
 	
 	public function getUpdateColumns() {
-		return $this->updateColumns;
+		$updateCols = [];
+		foreach ($this->tableColumns as $col) {
+			if (is_array($this->tableColumnsProtected) && !in_array($col, $this->tableColumnsProtected)) {
+				if (property_exists($this, $col)) {
+					$updateCols[] = $col;
+				}
+			}
+		}
+		return $updateCols;
 	}
 	
 	/**
@@ -84,6 +89,6 @@ abstract class BaseModel {
 	 * @return \ATFApp\Core\PdoDb
 	 */
 	public function getDb() {
-		return Core\Factory::getDbObj();
+		return Core\Factory::getDbObj($this->dbConnection);
 	}
 }

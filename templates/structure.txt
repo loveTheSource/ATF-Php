@@ -5,22 +5,15 @@ templates structure
 ..
 templates/										// templates folder
 	default/									// skin name
-		index.phtml								// main template (html structure..)
-		base/									// base templates
-		modules/								// modules
+		index.phtml								// main layout template (html structure..)
+		helper/									// base templates
+		controller/								
 			index/								// module named index
-				module.phtml					// module template (optional - uses default module templ if missing)
-				cmds/							// cmds in module index
-					index/						// cmd named index
-						cmd.phtml				// cmd template (optional - uses default cmd templ if missing)
-						actions/				// actions in cmd index
-							index.phtml			// action template index (file needs exactly the same name as the action)
-							index2.phtml		// action template index2 (file needs exactly the same name as the action)
-							...
-					index2/						// cmd named index2
-						...
+				indexModule.phtml				// module template (optional)
+				index.phtml						// action template index 
+				action2.phtml					// action template action2 
 						
-			index2/								// module named index2
+			demo/								// module named demo
 				...
 
 	

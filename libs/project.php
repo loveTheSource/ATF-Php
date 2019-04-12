@@ -48,7 +48,7 @@ class ATFProject {
 		require_once CORE_PATH . 'bootstrap.php';
 		$bootstrapObj = new Core\Bootstrap();
 		foreach (get_class_methods($bootstrapObj) AS $method) {
-			// execute all methods that match init* 
+			// include all methods that match init* 
 			if (substr($method, 0, 4) == "init") {
 				$bootstrapObj->$method();
 			}

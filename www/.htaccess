@@ -4,4 +4,3 @@ RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !\.(php|html?|jpe?g|png|gif|pdf|css|js)$ [NC]
 RewriteRule .* /index.php?%{QUERY_STRING}
-#RewriteRule .* /index.php?uri=%{REQUEST_URI}

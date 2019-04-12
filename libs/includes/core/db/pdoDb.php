@@ -21,7 +21,7 @@ class PdoDb extends \PDO {
 		return parent::exec($statement);
 	}
 	
-	public function logQuery($query, $method=null) {
+	private function logQuery($query, $method=null) {
 		if (ProjectConstants::DB_LOGGING === true) {
 			$part = strtolower(substr(trim($query), 0, 6));
 			if (in_array($part, $this->statementsToLog)) {
@@ -32,7 +32,6 @@ class PdoDb extends \PDO {
 
 					$sqlLogModel = new Model\SqlLog();
 					$sqlLogModel->user_id = $auth->getUserId();
-					$sqlLogModel->operator_id = BasicFunctions::getOperator();
 					$sqlLogModel->remote_addr = Request::getRemoteAddress();
 					$sqlLogModel->query = $query;
 					$sqlLogModel->method = $method;

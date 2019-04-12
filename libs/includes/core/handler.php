@@ -18,32 +18,37 @@ use ATFApp\Core as Core;
 class Handler {
 	
 	private $moduleObj = null;
-	private $cmdObj = null;
-	private $actionMethod = null;
+	private $controllerObj = null;
 	
 	public function __construct() { 
-		$this->moduleObj = Factory::getModule(BasicFunctions::getModule());
-		$this->cmdObj = Factory::getCmd(BasicFunctions::getModule(), BasicFunctions::getCmd());
-		$this->actionMethod = Router::getInstance()->getActionMethod(BasicFunctions::getAction());
+		$this->controllerObj = Factory::getController(BasicFunctions::getRoute());
+
+		if (BasicFunctions::getModule()) {
+			$this->moduleObj = Factory::getModule(BasicFunctions::getModule());
+		}
 	}
 	
 	/**
 	 * handle the request
-	 * create module/cmd objects and execute methods
 	 */
 	public function handle() {
 		try {
-			$actionHtml = $this->getActionContent();
-			$cmdHtml = $this->getCmdContent($actionHtml);
-			$moduleHtml = $this->getModuleContent($cmdHtml);
+			$router = Core\Includer::getRouter();
+			$routeConfig = $router->getRouteConfig(BasicFunctions::getRoute());
+
+			// action content (html)
+			$actionHtml = $this->getContentHtml($routeConfig['action']);
 			
+			// content html
+			$contentHtml = $this->getModuleHtml($actionHtml);
+
 			$template = Factory::getTemplateObj();
-			$template->setData('module_html', $moduleHtml);
+			$template->setData('content_html', $contentHtml);
 			$template->setData('project_config', BasicFunctions::getConfig('project'));
-			$templateFile = $template->getTemplatePath() . "index.phtml";
+			$templateFile = $template->getTemplatePath() . "index" . $template->templateExtension;
 			$html = $template->renderFile($templateFile);
-			
-			$response = new Response();
+	
+			$response = Includer::getResponseObj();
 			$response->respondHtml($html, false);
 		} catch (\Exception $e) {
 			throw $e;
@@ -72,67 +77,18 @@ class Handler {
 	}
 	
 	/**
-	 * get module content 
-	 * 
-	 * @param string $cmdHtml
-	 * @return string
-	 */
-	private function getModuleContent($cmdHtml) {
-		if ($this->moduleObj->canAccess()) {
-			$moduleContent = $this->moduleObj->getModuleData();
-				
-			// render template
-			$template = Factory::getTemplateObj();
-			$template->setData('module', $moduleContent);
-			$template->setData('cmd_html', $cmdHtml);
-			$html = $template->renderModule();
-				
-			return $html;
-		} else {
-			$this->handleAccessDenied();
-		}
-	}
-	
-	/**
-	 * get cmd content
-	 * 
-	 * @param string $actionHtml
-	 * @return string
-	 */
-	private function getCmdContent($actionHtml) {
-		if ($this->moduleObj->canAccess() && $this->cmdObj->canAccess()) {
-			$cmdContent = $this->cmdObj->getCmdData();
-			
-			// render template
-			$template = Factory::getTemplateObj();
-			$template->setData('cmd', $cmdContent);
-			$template->setData('action_html', $actionHtml);
-			$html = $template->renderCmd();
-			
-			return $html;
-		} else {
-			$this->handleAccessDenied();
-		}
-	}
-	
-	
-	/**
-	 * get action content
+	 * get html content 
 	 * 
 	 * @return string
 	 */
-	private function getActionContent() {
-		if ($this->moduleObj->canAccess() && $this->cmdObj->canAccess()) {
-			$actionMethod = $this->actionMethod;
-			
-			// the action content can be either a string (html)
-			// or an array in which case the corresponding template is used
-			
-			$actionContent = $this->cmdObj->$actionMethod();
+	private function getContentHtml($action) {
+		$actionMethod = $action . 'Action';
+		if ($this->controllerObj->canAccess()) {
+			$actionContent = $this->controllerObj->$actionMethod();
 			
 			if (is_string($actionContent)) {
 				return $actionContent;
-			} else {
+			} elseif (is_array($actionContent)) {
 				$template = Factory::getTemplateObj();
 				if (is_array($actionContent)) {
 					foreach ($actionContent AS $key => $value) {
@@ -147,8 +103,9 @@ class Handler {
 			$this->handleAccessDenied();
 		}
 	}
-
-
+	
+	
+	
 	/**
 	 * handle access denied
 	 * 
@@ -167,14 +124,53 @@ class Handler {
 				$auth->setRedirectOnAuth(Request::getRequestURL(true, true));
 			}
 			// forward to login (auth module)
-			$forwarder->forwardTo(ProjectConstants::MODULE_AUTH);
+			$forwarder->forwardTo(ProjectConstants::ROUTE_AUTH);
 		} else {
 			// 403 forbidden
-			$forwarder->forwardTo(ProjectConstants::MODULE_403);
+			$forwarder->forwardTo(ProjectConstants::ROUTE_403);
 		}
 	}
 	
-	
+	/**
+	 * get the module content (if a module object exists)
+	 * 
+	 * @return array
+	 */
+	private function getModuleContent() {
+		if ($this->moduleObj) {
+			if ($this->moduleObj->canAccess()) {
+				$moduleData = $this->moduleObj->getModuleData();
+					
+				return $moduleData;
+			} else {
+				$this->handleAccessDenied();
+			}	
+		}
+		return [];
+	}
+
+	/**
+	 * get module html (if template exists)
+	 * otherwise returns the $actionHtml
+	 * 
+	 * @return string
+	 */
+	private function getModuleHtml($actionHtml) {
+		$modData = $this->getModuleContent();
+
+		$template = Factory::getTemplateObj();
+		$template->setData('module', $modData);
+		$template->setData('action_html', $actionHtml);
+		$result = $template->renderModule();
+		
+		if ($result === false) {
+			// no template exists
+			return $actionHtml;
+		} else {
+			return $result;
+		}
+	}
+
 	/**
 	 * print debug infos
 	 */
@@ -204,22 +200,12 @@ class Handler {
 		";
 		// measure final execution time here
 		$executionTime = bcsub(microtime(true), $_SERVER["REQUEST_TIME_FLOAT"], 6);
-		echo '<pre><fieldset style="font-size: 12px;"><legend onclick="showHide(\'atf_debug_infos\');" style="cursor:pointer;"><b>D E B U G</b></legend>';
+		echo '<fieldset style="font-size: 12px; font-family:monospace;"><legend onclick="showHide(\'atf_debug_infos\');" style="cursor:pointer;"><b>D E B U G</b></legend>';
 		
 		echo '<table id="atf_debug_infos" style="display:inline;">';
 			echo '<tr>';
-				echo '<th align="left">Module:</th>';
-				echo '<td>' . BasicFunctions::getModule() . '</td>';
-			echo '</tr>';
-			
-			echo '<tr>';
-				echo '<th align="left">Cmd:</th>';
-				echo '<td>' . BasicFunctions::getCmd() . '</td>';
-			echo '</tr>';
-			
-			echo '<tr>';
-				echo '<th align="left">Action:</th>';
-				echo '<td>' . BasicFunctions::getAction() . '</td>';
+				echo '<th align="left">Route:</th>';
+				echo '<td>' . BasicFunctions::getRoute() . '</td>';
 			echo '</tr>';
 			
 			echo '<tr>';
@@ -326,6 +312,6 @@ class Handler {
 			}
 			
 		echo '</table>';
-		echo '</fieldset></pre>';
+		echo '</fieldset>';
 	}
 }

@@ -7,6 +7,7 @@ decision_no = "No"
 
 system_error = "An Error occured. Please try again later or contact the support."
 
+err_header = "An Error occured."
 message_403 = "You do not have the required rights to access this page"
 message_404 = "The requested site does not exists"
 

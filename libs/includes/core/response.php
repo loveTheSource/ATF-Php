@@ -6,10 +6,12 @@ use ATFApp\Exceptions;
 
 class Response {
 	
+	private static $instance = null;
+
 	private $statusCodeDefault = 200;  // has to exist in the $statusCodesMap array
 	private $statusCodeString = null;
 	// some common status codes and their description
-	private $statusCodesMap = array(
+	private $statusCodesMap = [
 		200 => 'OK',
 		201 => 'Created',
 		303 => 'See Other',
@@ -18,15 +20,31 @@ class Response {
 		400 => 'Bad Request',
 		403 => 'Forbidden',
 		404 => 'Not Found',
-		418 => 'I’m a teapot',
+		418 => 'I’m a teapot',  // :)
 		500 => 'Internal Server Error',
-	);
-	private $responseHeaders = array();
+	];
+	private $responseHeaders = [];
 	
-	public function __construct() {
+	// private to force singleton
+	private function __construct() {
 		$this->statusCodeString = $this->setStatusCode($this->statusCodeDefault);
 	}
 	
+	/**
+	 * get object instance (singleton)
+	 * 
+	 * @return \ATFApp\Core\Response
+	 */
+	public static function getInstance() {
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+
+
+
 	/**
 	 * set the response status code e.g. 200
 	 * will be overwritten each time it is called
@@ -48,6 +66,7 @@ class Response {
 			$this->statusCodeString = "Status: " . $status;
 		}
 	}
+
 	/**
 	 * add additional header
 	 * 
@@ -143,14 +162,14 @@ class Response {
 			if (!is_null($responseString)) {
 				echo $responseString;
 			}
-				
+
 			if ($exit) exit();
 		} else {
-			$exceptionData = array(
+			$exceptionData = [
 				'string' => $responseString,
 				'status' => $this->statusCodeString,
 				'headers' => $this->responseHeaders
-			);
+			];
 			throw new Exceptions\Custom("unable to send headers - already sent", null, null, $exceptionData);
 			exit();
 		}

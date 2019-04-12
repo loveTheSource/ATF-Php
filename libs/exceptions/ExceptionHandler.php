@@ -14,14 +14,14 @@ require_once 'DbException.php';
  * requires ENVIRONMENT constant to be defined (values: debug | staging | live)
  * used as singleton to make sure everything has to be defined only once (e.g. e-mail)
  * 
- * @author christian bacherer
+ * @author cre8.info
  *
  */
 class ExceptionHandler {
 	
 	private $logfile = "./exceptionHandler.log"; 	// default path to the logfile
 	
-	private static $recipients = array(); 					// array e-mail recipients
+	private static $recipients = []; 					// array e-mail recipients
 	private static $instance = null;
 	
 	public $appEnvironment = "live";  // default environment (if nothing else defined)
@@ -231,7 +231,7 @@ class ExceptionHandler {
 // custom exception/error handling and setting the error level/visibility (maybe move elsewhere)
 
 // other errors
-function customErrorHandling($errNo, $errMsg, $fileName, $lineNum, $vars=array()) {
+function customErrorHandling($errNo, $errMsg, $fileName, $lineNum, $vars=[]) {
 	$msg = "ErrorHandling: " . $errMsg . ' in file ' . $fileName . '(' . $lineNum . ')';
 	$exception = new Custom($msg, $errNo, null, $vars);
 	ExceptionHandler::handle($exception);

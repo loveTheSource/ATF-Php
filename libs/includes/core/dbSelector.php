@@ -10,7 +10,7 @@ use ATFApp\Core;
 
 class DbSelector {
 	
-	private $db = 'default';
+	private $dbConnection = 'default';
 	private $columns = [];
 	private $table = null;
 	private $wheres = [];
@@ -25,9 +25,9 @@ class DbSelector {
 	 * 
 	 * @param string $db database connection id
 	 */
-	public function __construct($db=null) {
-		if (!is_null($db)) {
-			$this->db = $db;
+	public function __construct($dbConnection=null) {
+		if (!is_null($dbConnection)) {
+			$this->dbConnection = $dbConnection;
 		}
 	}
 	
@@ -35,7 +35,7 @@ class DbSelector {
 	 * select (columns)
 	 * 
 	 * @param array|string $columns table columns
-	 * @return \ATFApp\Core\PdoSelector
+	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function select($columns) {
 		if (is_array($columns)) {
@@ -55,7 +55,7 @@ class DbSelector {
 	 * from (table)
 	 * 
 	 * @param from $table table name
-	 * @return \ATFApp\Core\PdoSelector
+	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function from($table) {
 		$this->table = $table;
@@ -69,7 +69,7 @@ class DbSelector {
 	 * @param string $column column name
 	 * @param multitype $value value
 	 * @param type $operator relational operator
-	 * @return \ATFApp\Core\PdoSelector
+	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function where($column, $value, $operator='=') {
 		if (in_array($operator, $this->operators)) {
@@ -88,7 +88,7 @@ class DbSelector {
 	 * 
 	 * @param string $column column name
 	 * @param string $sort ASC | DESC
-	 * @return \ATFApp\Core\PdoSelector
+	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function orderBy($column, $sort="ASC") {
 		if (strtolower($sort) === "desc") {
@@ -111,7 +111,7 @@ class DbSelector {
 	 * 
 	 * @param integer $start
 	 * @param integer $maxResults
-	 * @return \ATFApp\Core\PdoSelector
+	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function limit($start, $limit) {
 		$this->start = $start;
@@ -124,7 +124,7 @@ class DbSelector {
 	 * fetch query results
 	 * 
 	 * @param string $fetchType 'array' | 'class'
-	 * @param string $class classname
+	 * @param string $class classname (required if fetchType is set to 'class')
 	 * @return boolean
 	 */
 	public function fetchResults($fetchType='array', $class=null) {
@@ -132,14 +132,14 @@ class DbSelector {
 		$query = $statementData['query'];
 		$params = $statementData['params'];
 		
-		$db = Core\Factory::getDbObj($this->db);
+		$db = Core\Factory::getDbObj($this->dbConnection);
 		
 		$statement = $db->prepare($query);
 		
 		$statementHandler = new Core\StatementHandler($statement);
 		$res = $statementHandler->execute($params);
 		
-		if ($res === true) {
+		if ($res !== false) {
 			switch ($fetchType) {
 				case "class":
 					$result = $statement->fetchAll(\PDO::FETCH_CLASS, $class);
@@ -177,8 +177,8 @@ class DbSelector {
 			} else {
 				$query .= " WHERE ";
 			}
-			$query .= $w['column'] . ' ' . $w['operator'] . ' ?';
-			$params[] = $w['value'];
+			$query .= $w['column'] . ' ' . $w['operator'] . ' :' . $w['column'];
+			$params[$w['column']] = $w['value'];
 		}
 		
 		foreach ($this->orders as $i => $o) {
@@ -193,7 +193,7 @@ class DbSelector {
 		if (!is_null($this->start) && !is_null($this->limit)) {
 			$query .= " LIMIT " . $this->start . ', ' . $this->limit;
 		}
-		
+
 		return [
 			'query' => $query,
 			'params' => $params

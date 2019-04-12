@@ -8,7 +8,7 @@ use ATFApp\Core;
 
 class PdoProfiler extends PdoDb {
 	
-	private $profiler = array();
+	private $profiler = [];
 	private $useProfiler = false;
 	private $decimals = 6;
 	private $connectionsCounter = 0;
@@ -41,7 +41,7 @@ class PdoProfiler extends PdoDb {
 		if ($profilerInUse) {
 			$executionTime = bcsub(microtime(true), $before, $this->decimals);
 			if (!isset($this->profiler['PREPARE: ' . $statement])) {
-				$this->profiler['PREPARE: ' . $statement] = array();
+				$this->profiler['PREPARE: ' . $statement] = [];
 			}
 			$this->profiler['PREPARE: ' . $statement][] = $executionTime;
 		}
@@ -68,7 +68,7 @@ class PdoProfiler extends PdoDb {
 		if ($profilerInUse) {
 			$executionTime = bcsub(microtime(true), $before, $this->decimals);
 			if (!isset($this->profiler['QUERY: ' . $statement])) {
-				$this->profiler['QUERY: ' . $statement] = array();
+				$this->profiler['QUERY: ' . $statement] = [];
 			}
 			$this->profiler['QUERY: ' . $statement][] = $executionTime;
 		}
@@ -88,7 +88,7 @@ class PdoProfiler extends PdoDb {
 		if ($profilerInUse) {
 			$executionTime = bcsub(microtime(true), $before, $this->decimals);
 			if (!isset($this->profiler['EXEC: ' . $statement])) {
-				$this->profiler['EXEC: ' . $statement] = array();
+				$this->profiler['EXEC: ' . $statement] = [];
 			}
 			$this->profiler['EXEC: ' . $statement][] = $executionTime;
 		}
@@ -102,14 +102,14 @@ class PdoProfiler extends PdoDb {
 				table.atf_db_profiler_results tbody tr:nth-child(odd) { background-color:#FAFAFA; }
 				</style>';
 		$html .= '<div style="width: 100%;font-size: 12px">';
-		$html .= '<pre><fieldset>';
+		$html .= '<fieldset style="font-family: monospace; margin-bottom: 10px;">';
 		$html .= '<legend onclick="var el=document.getElementById(\'db_profiler_results\'); if (el.style.display != \'none\') {el.style.display = \'none\'} else {el.style.display = \'inline\'}" style="cursor:pointer;">';
 		$html .= '<b>D B - P R O F I L E R | </b>Connection: ' . $name . '</legend>';
 		
 		$html .= '<div id="db_profiler_results">';
-			$html .= '<table class="atf_db_profiler_results">';
+			$html .= '<table class="atf_db_profiler_results sortierbar">';
 			$html .= '<tr>';
-				$html .= '<th>DB Query</th><th>Execution Times</th>';
+				$html .= '<th class="sortierbar">DB Query</th><th class="sortierbar">Execution Times</th>';
 			$html .= '</tr>';
 			foreach ($this->profiler AS $query => $profiles) {
 				$html .= '<tr>';
@@ -132,7 +132,7 @@ class PdoProfiler extends PdoDb {
 			}
 		$html .= '</div>';
 		
-		$html .= '</fieldset></pre>';
+		$html .= '</fieldset>';
 		$html .= '</div>';
 		
 		return $html;

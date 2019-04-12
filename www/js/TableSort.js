@@ -1,100 +1,116 @@
-// TableSort 8.18 beta (?jbts=...)
-// Jürgen Berkemeier, 5. 9. 2014
+// TableSort 10.0
+// Jürgen Berkemeier, 28. 3. 2019
 // www.j-berkemeier.de
 
+(function() {
+	
 	"use strict";
 
-	var JB_Table = function(tab) {
-
-		var up = String.fromCharCode(9650);
-		var down = String.fromCharCode(9660);
-		// var up = String.fromCharCode(8593);
-		// var down = String.fromCharCode(8595);
-		// var up = String.fromCharCode(11014);
-		// var down = String.fromCharCode(11015);
-		var no = String.fromCharCode(160,160,160,160); // Idee: 9674 ???
+	var JB_tableSort = function(tab,startsort) {
 		var dieses = this;
-		var defsort = 0;
+		
+		// Dokumentensprache ermitteln
+		var doclang = document.documentElement.hasAttribute("lang") ? document.documentElement.getAttribute("lang") : "de";
+
+		// Tabellenelemente ermitteln
+		var thead = tab.tHead;
+		if(thead) {
+			var tr_in_thead = thead.querySelectorAll("tr.sortierbar");
+			if(!tr_in_thead.length) tr_in_thead = thead.rows;
+		}
+		if(tr_in_thead) var tabletitel = tr_in_thead[0].cells;   
+		if( !(tabletitel && tabletitel.length > 0) ) { console.error("Tabelle hat keinen thead und/oder keine THs."); return null; }
+		var tbdy = tab.tBodies;
+		if( !(tbdy) ) { console.error("Tabelle hat keinen tbody."); return null; }
+		tbdy = tbdy[0];
+		var tr = tbdy.rows;
+		if( !(tr && tr.length > 0) ) { console.error("Tabelle hat keine Zeilen im tbody."); return null; }
+		var nrows = tr.length;
+		var ncols = tr[0].cells.length;
+
+		// Einige Variablen
+		var arr = [];
+		var sorted = -1;
+		var sortsymbols = [];
+		var sortbuttons = [];
+		var sorttype = [];
+		var firstsort = [];
 		var startsort_u = -1,startsort_d = -1;
-		var first = true;
-		var ssort;
-		var tbdy = tab.getElementsByTagName("tbody")[0];
-		var tz = tbdy.rows;
-		var nzeilen = tz.length;
-		if (nzeilen==0) return;
-		var nspalten = tz[0].cells.length;
-		var Titel = tab.getElementsByTagName("thead")[0].getElementsByTagName("tr")[0].getElementsByTagName("th");
-		var Arr = new Array(nzeilen);
-		var ct = 0;
-		var sdir = new Array(nspalten);
-		var stype = new Array(nspalten); 
-		var sortable = new Array(nspalten); 
-		for(var i=0;i<nspalten;i++) { 
-			stype[i] = "n";
-			sdir[i] = "u";
-			sortable[i] = false;
+		var savesort = tab.className.indexOf("savesort")>-1 && tab.id && tab.id.length>0 && localStorage;
+		var minsort = -1;
+
+		// Stylesheets für Button im TH
+		if(!document.getElementById("JB_stylesheet_tableSort")) {
+			var sortbuttonStyle = document.createElement('style'); 
+			sortbuttonStyle.id = "JB_stylesheet_tableSort";
+			var stylestring = '.sortbutton { width:100%; height:100%; border: none; background-color: transparent; font: inherit; color: inherit; text-align: inherit; padding: 0; cursor: pointer; } ';		
+			stylestring += 'table.sortierbar thead th span.visually-hidden, table[sortable] thead th span.visually-hidden { position: absolute !important; clip: rect(1px, 1px, 1px, 1px) !important; padding: 0 !important; border: 0 !important; height: 1px !important; width: 1px !important; overflow: hidden !important; white-space: nowrap !important; } ';
+			stylestring += '.sortsymbol::after { display: inline-block; letter-spacing: -.2em; margin-left:.1em; width: 1.8em; } ';
+			stylestring += '.sortsymbol.sortedasc::after { content: "▲▽" } ';
+			stylestring += '.sortsymbol.sorteddesc::after { content: "△▼" } ';
+			stylestring += '.sortsymbol.unsorted::after { content: "△▽" } '	;
+			stylestring += '.sortierbar caption span{ font-weight: normal; font-size: .8em; } ';
+			sortbuttonStyle.innerText = stylestring;
+			document.head.appendChild(sortbuttonStyle);
 		}
 
-		var Init_Sort = function(t,nr) {
-			t.style.cursor = "pointer";
-			t.onclick = function() { dieses.sort(nr); };
-			sortsymbol.init(t,no);
-//			t.title = 'Die Tabelle nach "'+t.firstChild.data+'" sortieren.';
-			t.title = 'Sort table by "'+elementText(t)+'"';
-			if(t.className.indexOf("vorsortiert-")>-1) {
-				sortsymbol.set(t,down);
-				ssort = nr;
+		var initTableHead = function(col) { // Kopfzeile vorbereiten
+			if(tabletitel[col].className.indexOf("sortier")==-1) {
+				return false;
 			}
-			else if(t.className.indexOf("vorsortiert")>-1) {
-				sortsymbol.set(t,up);
-				ssort = nr;
+			if(tabletitel[col].className.indexOf("sortierbar-")>-1) {
+				firstsort[col] = "desc";
 			}
-			if(t.className.indexOf("sortiere-")>-1) startsort_d=nr;
-			else if(t.className.indexOf("sortiere")>-1) startsort_u=nr;
-			sortable[nr] = true;
-		} // Init_Sort
-    
-		var sortsymbol = {
-			init: function(t,s) {
-				var sp = t.getElementsByTagName("span");
-				for(var i=0;i<sp.length;i++) {
-					if(!sp[i].hasChildNodes()) {
-						t.sym = sp[i].appendChild(document.createTextNode(s));
+			else if(tabletitel[col].className.indexOf("sortierbar")>-1) {
+				firstsort[col] = "asc";
+			}
+			var hinweis = doclang=="de"?'Sortiere nach ':'Sort by ';
+			var sortbutton = document.createElement("button");
+			sortbutton.innerHTML = "<span class='visually-hidden'>" + hinweis + "</span>" + tabletitel[col].innerHTML;
+			sortbutton.title = sortbutton.textContent;
+			sortbutton.className = "sortbutton";
+			sortbutton.type = "button";
+			sortbuttons[col] = sortbutton;
+			var sortsymbol = sortbutton;
+			var symbolspan = sortbutton.querySelectorAll("span");
+			if(symbolspan && symbolspan.length) {
+				for(var i=0;i<symbolspan.length;i++) {
+					if(!symbolspan[i].hasChildNodes()) { 
+						sortsymbol = symbolspan[i];
 						break;
 					}
 				}
-				if(typeof(t.sym)=="undefined") t.sym = t.appendChild(document.createTextNode(s));
-			},
-			set: function(t,s) {
-				t.sym.data = s;
-			},
-			get: function(t) {
-				return t.sym.data;
 			}
-		} // sortsymbol
-
-		var VglFkt_s = function(a,b) {
-			var as = a[ssort], bs = b[ssort];
-			var ret=(as>bs)?1:(as<bs)?-1:0;
-			if(!ret && ssort!=defsort) {
-				if (stype[defsort]=="s") { as = a[defsort]; bs = b[defsort]; ret = (as>bs)?1:(as<bs)?-1:0; }
-				else ret = parseFloat(a[defsort])-parseFloat(b[defsort])
+			sortsymbol.classList.add("sortsymbol");
+			if(tabletitel[col].className.indexOf("vorsortiert-")>-1) {
+				sortsymbol.classList.add("sorteddesc");
+				sorted = col;
 			}
-			return ret;
-		} // VglFkt_s
-
-		var VglFkt_n = function(a,b) {
-			var ret = parseFloat(a[ssort])-parseFloat(b[ssort]);
-			if(!ret && ssort!=defsort) {
-				if (stype[defsort]=="s") { var as = a[defsort],bs = b[defsort]; ret = (as>bs)?1:(as<bs)?-1:0; }
-				else ret = parseFloat(a[defsort])-parseFloat(b[defsort]);
+			else if(tabletitel[col].className.indexOf("vorsortiert")>-1) {
+				sortsymbol.classList.add("sortedasc");
+				sorted = col;
 			}
-			return ret;
-		} // VglFkt_n
+			else {
+				sortsymbol.classList.add("unsorted");
+			}
+			sortsymbols[col] = sortsymbol;
+			if(tabletitel[col].className.indexOf("sortiere-")>-1) {
+				startsort_d = col;
+			}
+			else if(tabletitel[col].className.indexOf("sortiere")>-1) {
+				startsort_u = col;
+			}
+			sortbutton.addEventListener("click",function() { dieses.tsort(col); },false);
+			tabletitel[col].innerHTML = "<span class='visually-hidden'>" + tabletitel[col].innerHTML + "</span>";
+			tabletitel[col].appendChild(sortbutton);
+			return true;
+		} // initTableHead
 
-		var convert = function(val,s) {
-			var dmy;
-			var trmdat = function() {
+		var getData = function (ele, col) {
+			var dmy,val;
+			
+			// Datum trimmen
+			var trmdat = function() { 
 				if(dmy[0]<10) dmy[0] = "0" + dmy[0];
 				if(dmy[1]<10) dmy[1] = "0" + dmy[1];
 				if(dmy[2]<10) dmy[2] = "200" + dmy[2];
@@ -102,13 +118,24 @@
 				else if(dmy[2]<99) dmy[2] = "19" + dmy[2];
 				else if(dmy[2]>9999) dmy[2] = "9999";
 			}
-			if(val.length==0) val = "0";
-			if(!isNaN(val) && val.search(/[0-9]/)!=-1) return val;
-			var n = val.replace(",",".");
-			if(!isNaN(n) && n.search(/[0-9]/)!=-1) return n;
-			n = n.replace(/\s|&nbsp;|&#160;|\u00A0/g,"");
-			if(!isNaN(n) && n.search(/[0-9]/)!=-1) return n;
-			if(!val.search(/^\s*\d+\s*\.\s*\d+\s*\.\s*\d+\s+\d+:\d\d\:\d\d\s*$/)) {
+			
+			// Tabellenfelder auslesen
+			if (ele.getAttribute("data-sort_key")) 
+				val = ele.getAttribute("data-sort_key");
+			else if (ele.getAttribute("sort_key")) 
+				val = ele.getAttribute("sort_key");
+			else 
+				val = ele.textContent;
+				// val = ele.textContent.trim().replace(/\s+/g," ")
+
+				// Tausendertrenner entfernen, und , durch . ersetzen
+			var tval = val.replace(/\s|&nbsp;|&#160;|\u00A0|&#8239;|\u202f|&thinsp;|&#8201;|\u2009/g,"").replace(",", ".");
+			
+			// auf Zahl prüfen
+			if (!isNaN(tval) && tval.search(/[0-9]/) != -1) return tval;                    
+			
+			// auf Datum/Zeit prüfen
+			if(!val.search(/^\s*\d+\s*\.\s*\d+\s*\.\s*\d+\s+\d+:\d\d\:\d\d\s*$/)) {  
 				var dp = val.search(":");
 				dmy = val.substring(0,dp-2).split(".");
 				dmy[3] = val.substring(dp-2,dp);
@@ -147,92 +174,128 @@
 				trmdat();
 				return (""+dmy[2]+dmy[1]+dmy[0]).replace(/ /g,"");
 			}
-			stype[s] = "s";
-			return val.toLowerCase().replace(/\u00e4/g,"ae").replace(/\u00f6/g,"oe").replace(/\u00fc/g,"ue").replace(/\u00df/g,"ss");
-		} // convert
 
-		var elementText = function(elem) {
-			var eT = function(ele) {
-				var uele = ele.firstChild;
-				while(uele) {
-					if(uele.hasChildNodes()) eT(uele);
-					if(uele.nodeType == 1) {
-						// if(child.tagName=='INPUT'||child.tagName=='BUTTON')txt+=child.value; //Idee
-						Text += " ";
-					}
-					else if(uele.nodeType == 3) Text += uele.data;
-					uele = uele.nextSibling;
-				}
-			}
-			var Text = "";
-			eT(elem);
-			return Text.replace(/\s+/g," ");
-		}
+			// String
+			sorttype[col] = "s"; 
+			return val;
+		} // getData		
 
-		this.sort = function(sp) {
-			if(sp<0 || sp>=nspalten) return;
-			if(!sortable[sp]) return;
-			if (first) {
-				for(var z=0;z<nzeilen;z++) {
-					var zelle = tz[z].getElementsByTagName("td"); // cells;
-					Arr[z] = new Array(nspalten+1);
-					Arr[z][nspalten] = tz[z];
-					for(var s=0;s<nspalten;s++) {
-						if (zelle[s].getAttribute("data-sort_key")) 
-							var zi = convert(zelle[s].getAttribute("data-sort_key"),s);
-						else if (zelle[s].getAttribute("sort_key")) 
-							var zi = convert(zelle[s].getAttribute("sort_key"),s);
-						else 
-							var zi = convert(elementText(zelle[s]),s);
-						Arr[z][s] = zi ;
-		//       zelle[s].innerHTML += "<br>"+zi;
-					}
+		var vglFkt_s = function(a,b) {
+			var ret = a[sorted].localeCompare(b[sorted],doclang);
+			if(!ret && sorted != minsort) {
+				if(sorttype[minsort] == "s") ret = a[minsort].localeCompare(b[minsort],doclang);
+				else                         ret = a[minsort] - b[minsort];
+			}
+			return ret;
+		} // vglFkt_s
+
+		var vglFkt_n = function(a,b) {
+			var ret = a[sorted] - b[sorted];
+			if(!ret && sorted != minsort) {
+				if(sorttype[minsort] == "s") ret = a[minsort].localeCompare(b[minsort],doclang);
+				else                         ret = a[minsort] - b[minsort];
+			}
+			return ret;
+		} // vglFkt_n
+
+		// Der Sortierer
+		this.tsort = function(col) { 
+			if(typeof(JB_presort)=="function") JB_presort(tab,tbdy,tr,nrows,ncols,col);
+
+			if(col == sorted) { // Tabelle ist schon nach dieser Spalte sortiert, also nur Reihenfolge umdrehen
+				arr.reverse();
+				sortsymbols[col].classList.toggle("sortedasc"); 
+				sortsymbols[col].classList.toggle("sorteddesc"); 
+			}
+			else {              // Sortieren 
+				if(sorted>-1) {
+					sortsymbols[sorted].classList.remove("sortedasc");
+					sortsymbols[sorted].classList.remove("sorteddesc");
+					sortsymbols[sorted].classList.add("unsorted");
+					sortbuttons[sorted].removeAttribute("aria-current");
 				}
-				first = false;
-			}
-			if(sp==ssort) {
-				Arr.reverse() ;
-				if ( sortsymbol.get(Titel[ssort])==down )
-					sortsymbol.set(Titel[ssort],up);
-				else
-					sortsymbol.set(Titel[ssort],down);
-			}
-			else {
-				if ( ssort>=0 && ssort<nspalten ) sortsymbol.set(Titel[ssort],no);
-					ssort = sp;
-				if(stype[ssort]=="s") Arr.sort(VglFkt_s);
-				else                  Arr.sort(VglFkt_n);
-				if(sdir[ssort]=="u") {
-					sortsymbol.set(Titel[ssort],up);
+				sorted = col;
+				sortsymbols[col].classList.remove("unsorted");
+				sortbuttons[col].setAttribute("aria-current","true");
+				if(sorttype[col] == "n") arr.sort(vglFkt_n);
+				else                     arr.sort(vglFkt_s);
+				if(firstsort[col] == "desc") {
+					arr.reverse();
+					sortsymbols[col].classList.add("sorteddesc");
 				}
 				else {
-					Arr.reverse() ;
-					sortsymbol.set(Titel[ssort],down);
+					sortsymbols[col].classList.add("sortedasc");
 				}
 			}
-			for(var z=0;z<nzeilen;z++)
-				tbdy.appendChild(Arr[z][nspalten]);
-			if(typeof(JB_aftersort)=="function") JB_aftersort(tab,tbdy,tz,nzeilen,nspalten,ssort);
-		} // sort
+			
+			// Sortierte Daten zurückschreiben
+			for(var r=0;r<nrows;r++) tbdy.appendChild(arr[r][ncols]); 
 
-		if(!tab.title.length) tab.title="Sort table by clicking the column headlines";
-		for(var i=Titel.length-1;i>-1;i--) {
-			var t=Titel[i];
-			if(t.className.indexOf("sortier")>-1) {
-				ct++;
-				Init_Sort(t,i);
-				defsort = i ;
-				if(t.className.indexOf("sortierbar-")>-1) sdir[i] = "d";
+			// Aktuelle sortierung speichern
+			if(savesort) {  
+				var store = { sorted: sorted, desc: sortsymbols[sorted].className.indexOf("sorteddesc")>-1};
+				localStorage.setItem(tab.id,JSON.stringify(store));
 			}
-	}
-		if(ct==0) {
-			for(var i=0;i<Titel.length;i++) 
-				Init_Sort(Titel[i],i);
-			defsort = 0;
+
+			if(typeof(JB_aftersort)=="function") JB_aftersort(tab,tbdy,tr,nrows,ncols,col);
+		} // tsort
+		
+		// Prüfen, ob kein tr im thead eine entsprechnde Klasse hat
+		var sortflag = false;
+		for(var c=0;c<tabletitel.length;c++) sortflag |= tabletitel[c].className.indexOf("sortier")>-1;
+		if(!sortflag)	for(var c=0;c<tabletitel.length;c++) tabletitel[c].classList.add("sortierbar");
+		
+		// Kopfzeile vorbereiten
+		for(var c=tabletitel.length-1;c>=0;c--) if(initTableHead(c)) minsort = c;
+		
+		// Array mit Info, wie Spalte zu sortieren ist, vorbelegen
+		for(var c=0;c<ncols;c++) sorttype[c] = "n";
+		
+		// Tabelleninhalt in ein Array kopieren
+		for(var r=0;r<nrows;r++) {
+			arr[r] = [];
+			for(var c=0;c<ncols;c++) {
+				var cc = getData(tr[r].cells[c],c);
+				arr[r][c] = cc ;
+				// tr[r].cells[c].innerHTML += "<br>"+cc+"<br>"+sorttype[c]; // zum Debuggen
+			}
+			arr[r][ncols] = tr[r];
 		}
-		if(startsort_u>=0) this.sort(startsort_u);
-		if(startsort_d>=0) { this.sort(startsort_d); this.sort(startsort_d); }
-		if(typeof(JB_aftersortinit)=="function") JB_aftersortinit(tab,tbdy,tz,nzeilen,nspalten,-1);
+		
+		// Tabelle die Klasse "is_sortable" geben
+		tab.classList.add("is_sortable");
 
-	} // JB_Table
+		// An caption Hinweis anhängen
+		var caption = tab.caption;
+		if(caption) caption.innerHTML += doclang=="de"?
+			"<br><span>Ein Klick auf die Spaltenüberschrift sortiert die Tabelle.</span>":
+			"<br><span>A click on the column header sorts the table.</span>";
+			
+		// Bei Bedarf sortieren
+		if(startsort && typeof(startsort.sorted)!="undefined" && typeof(startsort.desc)!="undefined") {
+			if(startsort.desc) { startsort_d = startsort.sorted; startsort_u = -1; }
+			else               { startsort_u = startsort.sorted; startsort_d = -1; }
+		}
+		if(startsort_u >= 0 && startsort_u < ncols) dieses.tsort(startsort_u); 
+		if(startsort_d >= 0 && startsort_d < ncols) { dieses.tsort(startsort_d); dieses.tsort(startsort_d); }
+		
+		if(typeof(JB_aftersortinit)=="function") JB_aftersortinit(tab,tbdy,tr,nrows,ncols,-1);
+	
+	} // tableSort
 
+	// Alle Tabellen suchen, die sortiert werden sollen, und den Tabellensortierer starten, wenn gewünscht, alte Sortierung wiederherstellen.
+	if(window.addEventListener) window.addEventListener("DOMContentLoaded",function() { 
+		var sort_Table = document.querySelectorAll("table.sortierbar, table[sortable]");
+		for(var i=0,store;i<sort_Table.length;i++) {
+			store = null;
+			if(localStorage && sort_Table[i].className && sort_Table[i].id && sort_Table[i].className.indexOf("savesort")>-1 && sort_Table[i].id.length) {
+				store = localStorage.getItem(sort_Table[i].id);
+				if(store) {
+					store = JSON.parse(store);
+				}
+			}
+			new JB_tableSort(sort_Table[i],store);
+		}
+	},false); // initTableSort
+
+})();  

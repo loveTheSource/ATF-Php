@@ -2,6 +2,7 @@
 
 namespace ATFApp\Template;
 
+use ATFApp\Core AS Core;
 use ATFApp\BasicFunctions AS BasicFunctions;
 use ATFApp\ProjectConstants AS ProjectConstants;
 
@@ -12,10 +13,9 @@ use ATFApp\ProjectConstants AS ProjectConstants;
 abstract class BasicTemplate {
 
 	protected $config = null;
-	protected $modulesConfig = null;
 	protected $templateSkin = null;
 	private $templateExtension = null;
-	private $templateData = array();
+	private $templateData = [];
 	
 	public function __construct($templateExtension) {
 		$this->templateExtension = $templateExtension;
@@ -60,13 +60,6 @@ abstract class BasicTemplate {
 		return is_file($templateFile) && is_readable($templateFile);
 	}
 	
-	protected function getModulesConfig() {
-		if (is_null($this->modulesConfig)) {
-			$this->modulesConfig = BasicFunctions::getConfig('modules');
-		}
-		return $this->modulesConfig;
-	}
-	
 	# ++++++++++++++++++++ template data (get, set, ..) ++++++++++++++++++++
 	
 	/**
@@ -106,7 +99,7 @@ abstract class BasicTemplate {
 	 * deletes the current data assigned to the template
 	 */
 	public function delTemplateData() {
-		$this->templateData = array();
+		$this->templateData = [];
 	}
 	
 	
@@ -120,42 +113,7 @@ abstract class BasicTemplate {
     }
 
     
-    # ++++++++++++++++++++ template paths (module,cmd,action,helper) ++++++++++++++++++++
-    
-    /**
-     * return path to module template file
-     * 
-     * @return string
-     */
-    protected function getModuleTemplate() {
-    	$module = BasicFunctions::getModule();
-    	$config = $this->getModulesConfig();
-    	
-    	if (isset($config[$module]['template'])) {
-    		return $this->getModulesPath() . $config[$module]['template'];
-    	} else {
-    		// user default template
-    		return $this->getModulesPath() . ProjectConstants::MODULES_DEFAULT_TEMPLATE;
-    	}
-    }
-
-    /**
-     * return path to cmd template file 
-     * 
-     * @return string
-     */
-    protected function getCmdTemplate() {
-       	$module = BasicFunctions::getModule();
-       	$cmd = BasicFunctions::getCmd();
-    	$config = $this->getModulesConfig();
-    	
-    	if (isset($config[$module]['cmds'][$cmd]['template'])) {
-    		return $this->getModulesPath() . $config[$module]['cmds'][$cmd]['template'];
-    	} else {
-    		// user default template
-    		return $this->getModulesPath() . ProjectConstants::CMDS_DEFAULT_TEMPLATE;
-    	}
-    }
+    # ++++++++++++++++++++ template paths (action,helper) ++++++++++++++++++++
 
     /**
      * return path to action template file
@@ -163,19 +121,33 @@ abstract class BasicTemplate {
      * @return string
      */
     protected function getActionTemplate() {
-       	$module = BasicFunctions::getModule();
-       	$cmd = BasicFunctions::getCmd();
-    	$action = BasicFunctions::getAction();
-    	$config = $this->getModulesConfig();
-    	
-    	return $this->getTemplatePath() . 
-    			'modules' . DIRECTORY_SEPARATOR . 
-    			BasicFunctions::getModule() . DIRECTORY_SEPARATOR .
-    			'cmds' . DIRECTORY_SEPARATOR .
-    			BasicFunctions::getCmd() . DIRECTORY_SEPARATOR .
-    			'actions' . DIRECTORY_SEPARATOR .
-    			BasicFunctions::getAction(). $this->templateExtension;
-    	#return $this->getActionPath() . BasicFunctions::getAction(). $this->templateExtension;
+			$router = Core\Includer::getRouter();
+			$routeConf = $router->getRouteConfig(BasicFunctions::getRoute());
+			$templateFile = $routeConf['template'];
+			$templateFolder = $routeConf['module'];
+				
+			return TEMPLATES_PATH . BasicFunctions::getSkin()
+				. DIRECTORY_SEPARATOR . 'controller'
+				. DIRECTORY_SEPARATOR . $templateFolder
+				. DIRECTORY_SEPARATOR . $templateFile;
+    }
+
+    /**
+     * return path to module template file
+     * 
+     * @return string
+     */
+    protected function getModuleTemplate() {
+			$template = Core\Factory::getTemplateObj();
+			$router = Core\Includer::getRouter();
+			$routeConf = $router->getRouteConfig(BasicFunctions::getRoute());
+			$templateFile = $routeConf['module'] . 'Module' . $template->templateExtension;
+			$templateFolder = $routeConf['module'];
+				
+			return TEMPLATES_PATH . BasicFunctions::getSkin()
+				. DIRECTORY_SEPARATOR . 'controller'
+				. DIRECTORY_SEPARATOR . $templateFolder
+				. DIRECTORY_SEPARATOR . $templateFile;
     }
 
     /**
@@ -187,17 +159,6 @@ abstract class BasicTemplate {
     	return $this->getTemplatePath() . 'helper' . DIRECTORY_SEPARATOR . $helper. $this->templateExtension;
     }
     
-    /*
-    protected function getModulesPath() {
-    	return $this->getTemplatePath() . 'modules' . DIRECTORY_SEPARATOR . BasicFunctions::getModule() . DIRECTORY_SEPARATOR;
-    }
-    protected function getCmdPath() {
-    	return $this->getModulesPath() . 'cmds' . DIRECTORY_SEPARATOR . BasicFunctions::getCmd() . DIRECTORY_SEPARATOR;
-    }
-    protected function getActionPath() {
-    	return $this->getCmdPath() . 'actions' . DIRECTORY_SEPARATOR;
-    }
-     */
 }
 
 ?>

@@ -14,7 +14,7 @@ use ATFApp\Exceptions as Exceptions;
 class Config {
 	
 	private static $obj = null;
-	private $configs = array();  // collection of all loaded configs
+	private $configs = [];  // collection of all loaded configs
 	
 	private function __construct() {}
 	
@@ -47,7 +47,7 @@ class Config {
 			if (is_file($defaultConfigFile)) {
 				$configDataDefault = include $defaultConfigFile;
 			} else {
-				$configDataDefault = array();
+				$configDataDefault = [];
 			}
 			// load custom config file and merge
 			$configFile = CONFIG_PATH . $name . ".php";

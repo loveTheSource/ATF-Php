@@ -23,7 +23,7 @@ class Form extends FormRenderer {
 	private $autocomplete = "On";
 	private $novalidate = false;
 	
-	protected $formElements = array();			// array of form elements
+	protected $formElements = [];			// array of form elements
 	
 	private $formOnSubmit = null;				// javascript event handler on form submit
 	private $formFocus = null;					// form element to set the focus to
@@ -60,7 +60,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly readonly
 	 * @param array $eventhandler array of 'event' => 'handler'
 	 */
-	public function addTextbox($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $maxlength=null, $readonly=false, $eventhandler=array()) {
+	public function addTextbox($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $maxlength=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'textbox',
 			'group' => $this->elementGroup,
@@ -89,7 +89,7 @@ class Form extends FormRenderer {
 	 * @param bollean $readonly
 	 * @param array $eventhandler
 	 */
-	public function addTextarea($name, $label=null, $required=false, $preselect=null, $placeholder=null, $wrap="soft", $cols=null, $rows=null, $readonly=false, $eventhandler=array()) {
+	public function addTextarea($name, $label=null, $required=false, $preselect=null, $placeholder=null, $wrap="soft", $cols=null, $rows=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'textarea',
 				'group' => $this->elementGroup,
@@ -133,7 +133,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly read-only status
 	 * @param array $eventhandler array('event' => handler)
 	 */
-	public function addSearch($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $maxlength=null, $readonly=false, $eventhandler=array()) {
+	public function addSearch($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $maxlength=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'search',
 			'group' => $this->elementGroup,
@@ -157,7 +157,7 @@ class Form extends FormRenderer {
 	 * @param string $placeholder
 	 * @param array $eventhandler
 	 */
-	public function addPassword($name, $label=null, $required=false, $placeholder=null, $eventhandler=array()) {
+	public function addPassword($name, $label=null, $required=false, $placeholder=null, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'password',
 			'group' => $this->elementGroup,
@@ -178,7 +178,7 @@ class Form extends FormRenderer {
 	 * @param string $placeholder
 	 * @param array $eventhandler
 	 */
-	public function addEmail($name, $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=array()) {
+	public function addEmail($name, $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'email',
 				'group' => $this->elementGroup,
@@ -200,7 +200,7 @@ class Form extends FormRenderer {
 	 * @param string $preselect
 	 * @param array $eventhandler
 	 */
-	public function addCheckboxes($name, $checkboxes, $label=null, $preselect=array(), $readonly=false, $eventhandler=array()) {
+	public function addCheckboxes($name, $checkboxes, $label=null, $preselect=[], $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'checkboxes',
 			'group' => $this->elementGroup,
@@ -223,7 +223,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly read-only
 	 * @param array $eventhandler array('click' => 'handler')
 	 */
-	public function addRadiobuttons($name, $radiobuttons, $label=null, $required=false, $preselect=null, $readonly=false, $eventhandler=array()) {
+	public function addRadiobuttons($name, $radiobuttons, $label=null, $required=false, $preselect=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'radiobuttons',
 			'group' => $this->elementGroup,
@@ -249,7 +249,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly
 	 * @param array $eventhandler
 	 */
-	public function addDropdown($name, $values, $label=null, $size=null, $multiple=false, $required=false, $preselect=array(), $readonly=false, $eventhandler=array()) {
+	public function addDropdown($name, $values, $label=null, $size=null, $multiple=false, $required=false, $preselect=[], $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'dropdown',
 				'group' => $this->elementGroup,
@@ -277,7 +277,7 @@ class Form extends FormRenderer {
 	 * @param string $preselect
 	 * @param array $eventhandler
 	 */
-	public function addDateselector($name, $label=null, $type="date", $required=false, $preselect=null, $pattern=null, $placeholder=null, $readonly=false, $eventhandler=array()) {
+	public function addDateselector($name, $label=null, $type="date", $required=false, $preselect=null, $pattern=null, $placeholder=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'date',
 			'group' => $this->elementGroup,
@@ -302,7 +302,7 @@ class Form extends FormRenderer {
 	 * @param string $placeholder
 	 * @param array $eventhandler
 	 */
-	public function addUrl($name, $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=array()) {
+	public function addUrl($name, $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'url',
 				'group' => $this->elementGroup,
@@ -325,7 +325,7 @@ class Form extends FormRenderer {
 	 * @param string $placeholder
 	 * @param array $eventhandler
 	 */
-	public function addPhone($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $readonly=false, $eventhandler=array()) {
+	public function addPhone($name, $label=null, $required=false, $preselect=null, $pattern=null, $placeholder=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'phone',
 				'group' => $this->elementGroup,
@@ -353,7 +353,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly
 	 * @param array $eventhandler
 	 */
-	public function addNumber($name, $min, $max, $step='any', $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=array()) {
+	public function addNumber($name, $min, $max, $step='any', $label=null, $required=false, $preselect=null, $placeholder=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'number',
 				'group' => $this->elementGroup,
@@ -382,7 +382,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly
 	 * @param array $eventhandler
 	 */
-	public function addSlider($name, $min, $max, $step='any', $label=null, $preselect=null, $readonly=false, $eventhandler=array()) {
+	public function addSlider($name, $min, $max, $step='any', $label=null, $preselect=null, $readonly=false, $eventhandler=[]) {
 		$this->addRange($name, $min, $max, $step, $label, $preselect, $readonly, $eventhandler);
 	}
 	/**
@@ -398,7 +398,7 @@ class Form extends FormRenderer {
 	 * @param boolean $readonly
 	 * @param array $eventhandler
 	 */
-	public function addRange ($name, $min, $max, $step='any', $label=null, $preselect=null, $readonly=false, $eventhandler=array()) {
+	public function addRange ($name, $min, $max, $step='any', $label=null, $preselect=null, $readonly=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'range',
 				'group' => $this->elementGroup,
@@ -437,7 +437,7 @@ class Form extends FormRenderer {
 	 * @param boolean $draggable drag'n'drop enabled
 	 * @param array $eventhandler array of eventhandlers array('click' => 'handler')
 	 */
-	public function addFileField($name, $label=null, $required=false, $mutiple=false, $accept=null, $draggable=false, $eventhandler=array()) {
+	public function addFileField($name, $label=null, $required=false, $mutiple=false, $accept=null, $draggable=false, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'file',
 				'group' => $this->elementGroup,
@@ -457,7 +457,7 @@ class Form extends FormRenderer {
 	 * @param string $value button text
 	 * @param array $eventhandler array('click' => 'eventHandler')
 	 */
-	public function addButton($name, $value, $eventhandler=array()) {
+	public function addButton($name, $value, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 				'type' => 'button',
 				'group' => $this->elementGroup,
@@ -473,7 +473,7 @@ class Form extends FormRenderer {
 	 * @param string $value
 	 * @param array $eventhandler
 	 */
-	public function addSubmit($name, $value, $eventhandler=array()) {
+	public function addSubmit($name, $value, $eventhandler=[]) {
 		$this->formElements[$name] = array(
 			'type' => 'submit',
 			'group' => $this->elementGroup,

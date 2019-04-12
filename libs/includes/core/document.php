@@ -170,10 +170,10 @@ class Document {
 			$file = $this->getCssPath($file);
 			$key = $this->getCssKey($file);
 			if (!array_key_exists($key, $this->cssFiles)) {
-				$this->cssFiles[$key] = array(
+				$this->cssFiles[$key] = [
 					'file' => $file,
 					'media' => $media
-				);
+				];
 			}			
 		}
 	}
@@ -189,7 +189,7 @@ class Document {
 			$file = $this->getCssPath($file);
 			$key = $this->getCssKey($file);
 			if (array_key_exists($file, $this->cssFiles)) {
-				$newFiles = array();
+				$newFiles = [];
 				foreach($this->cssFiles AS $fk => $css) {
 					if ($fk != $key) {
 						$newFiles[$fk] = $css;
@@ -265,7 +265,7 @@ throw new Exceptions\Custom("TESTER: unregisterCssFile seems to work. consider r
 	 */
 	public function unregisterJsFile($jsFile) {
 		if (in_array($jsFile, $this->jsFiles)) {
-			$newList = array();
+			$newList = [];
 			foreach ($this->jsFiles AS $js) {
 				if ($js != $jsFile) $newList[] = $js;
 			}
@@ -282,17 +282,17 @@ throw new Exceptions\Custom("TESTER: unregisterCssFile seems to work. consider r
 	 * @param string $module
 	 * @param array $data
 	 */
-	public function registerJsModule($file, $module, Array $data=array()) {
+	public function registerJsModule($file, $module, Array $data=[]) {
 		if (!empty($module)) {
 			$file = $this->getJsModulesPath($file);
 			$key = $this->getJsModulesKey($file);
 			if (!array_key_exists($key, $this->jsModules)) {
 				$data = (!empty($data)) ? json_encode($data) : ''; 
-				$this->jsModules[$key] = array(
+				$this->jsModules[$key] = [
 					'file' => $file,
 					'module' => $module,
 					'data' => $data
-				);
+				];
 			}			
 		}
 	}
@@ -308,8 +308,8 @@ throw new Exceptions\Custom("TESTER: unregisterCssFile seems to work. consider r
 			$file = $this->getJsModulesPath($file);
 			$key = $this->getJsKey($file);
 			if (array_key_exists($key, $this->jsModules)) {
-				$newModules = array();
-				foreach($jsModules AS $mk => $js) {
+				$newModules = [];
+				foreach($this->jsModules AS $mk => $js) {
 					if ($mk != $key) {
 						$newModules[$mk] = $js;
 					} else {

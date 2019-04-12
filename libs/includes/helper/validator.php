@@ -17,7 +17,7 @@ use ATFApp\Exceptions as Exceptions;
 class Validator {
 	
 	private $rulesSeparator = ':';
-	private $errors = array();
+	private $errors = [];
 	
 	public function __construct() { }
 
@@ -25,9 +25,9 @@ class Validator {
 	 * validate multiple values againt multiple rules
 	 * 
 	 * usage:
-	 * $values = array('value1' => 'some text', 'value2' => 123);
-	 * $methods = array('value1' => array('required', 'minlen:2'), 'value2' => array('int'));
-	 * $validator->validate($data, $methods);
+	 * $values = ['value1' => 'some text', 'value2' => 123];
+	 * $methods = ['value1' => ['required', 'minlen:2'], 'value2' => ['int']);
+	 * $validator->validate($values, $methods);
 	 * 
 	 * will call checkRequired + checkMinlen for value1 as well as checkInt for value2
 	 * on return false the errors are available via $validator->getErrors();
@@ -37,15 +37,15 @@ class Validator {
 	 */
 	public function validate(Array $values, Array $methods) {
 		// start fresh (delete all previously existing errors)
-		$this->errors = array();
+		$this->errors = [];
 		$valid = true;
 		
 		if (count($values) != count($methods)) {
-			throw new Exceptions\Custom("Validator: values and methods must have equal elements", null, null, array('values'=>$values, 'methods'=>$methods));
+			throw new Exceptions\Custom("Validator: values and methods must have equal elements", null, null, ['values'=>$values, 'methods'=>$methods]);
 		}
 		foreach ($methods AS $itemId => $rulesset) {
 			if (!array_key_exists($itemId, $values)) {
-				throw new Exceptions\Custom("Validator: values and methods mismatch", null, null, array('values'=>$values, 'methods'=>$methods));
+				throw new Exceptions\Custom("Validator: values and methods mismatch", null, null, ['values'=>$values, 'methods'=>$methods]);
 			}
 			
 			if (!in_array('required', $rulesset) && $values[$itemId] == '') {
@@ -66,10 +66,10 @@ class Validator {
 					if (method_exists($this, $checkFunction)) {
 						if ($this->$checkFunction($values[$itemId], $checkData) === false) {
 							if (!isset($this->errors[$itemId])) {
-								$this->errors[$itemId] = array();
+								$this->errors[$itemId] = [];
 							}
 				
-							$this->errors[$itemId][] = array('check' => $function, 'data' => $checkData);
+							$this->errors[$itemId][] = ['check' => $function, 'data' => $checkData];
 				
 							$valid = false;
 						}

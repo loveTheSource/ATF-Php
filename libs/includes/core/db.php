@@ -24,7 +24,7 @@ require_once 'db' . DIRECTORY_SEPARATOR . 'statementHandler.php';
 class Db {
 	
 	// db connections
-	private static $connections = array();
+	private static $connections = [];
 	
 	// private to force singleton
 	private function __construct() { }
@@ -66,9 +66,9 @@ class Db {
 			switch ($connConfig['type']) {
 				case 'mysql':
 					$dsn = 'mysql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
-					$options = array(
+					$options = [
 						\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-					);
+					];
 					if (BasicFunctions::useProfiler()) {
 						// PdoProfiler: PdoDb with profiler
 						require_once 'db' . DIRECTORY_SEPARATOR . 'pdoProfiler.php';
@@ -81,7 +81,7 @@ class Db {
 				case 'pgsql':
 					// TODO untested!!!
 					$dsn = 'pgsql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
-					$options = array();
+					$options = [];
 					$dbh = new Core\PdoDb($dsn, $connConfig['user'], $connConfig['pass'], $options);
 					break;
 					
@@ -89,7 +89,7 @@ class Db {
 					// TODO untested!!!
 					// resolves to either 'sqlite:/path/to/db/file' or 'sqlite::memory'
 					$dsn = 'sqlite:' . $connConfig['host'];
-					$dbh = new Core\PdoDb($dsn, null, null, array());
+					$dbh = new Core\PdoDb($dsn, null, null, []);
 					break;
 					
 				default:

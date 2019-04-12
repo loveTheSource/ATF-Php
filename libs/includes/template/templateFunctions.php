@@ -62,62 +62,33 @@ class TemplateFunctions {
 	}
 
 	/**
-	 * return current module
+	 * return current route
 	 * 
 	 * @return string
 	 */
-	public function getModule() {
-		return BasicFunctions::getModule();
-	}
-	/**
-	 * return current cmd
-	 * 
-	 * @return string
-	 */
-	public function getCmd() {
-		return BasicFunctions::getCmd();
-	}
-	/**
-	 * return current action
-	 * 
-	 * @return string
-	 */
-	public function getAction() {
-		return BasicFunctions::getAction();
+	public function getRoute() {
+		return BasicFunctions::getRoute()();
 	}
 	
 	/**
 	 * get the current link
 	 * 
-	 * @param string $moduleOnly
-	 * @param string $moduleCmdOnly
 	 * @param string $absolute
 	 * @return string
 	 */
-	public function getCurrentLink($moduleOnly=false, $moduleCmdOnly=false, $absolute=true) {
-		if ($moduleOnly) {
-			// link to the current module only
-			return $this->getLink(BasicFunctions::getModule(), null, null, $absolute);
-		} elseif ($moduleCmdOnly) {
-			// link to the current module/cmd
-			return $this->getLink(BasicFunctions::getModule(), BasicFunctions::getCmd(), null, $absolute);
-		} else {
-			// complete current link (module/cmd/action)
-			return $this->getLink(BasicFunctions::getModule(), BasicFunctions::getCmd(), BasicFunctions::getAction(), $absolute);
-		}
+	public function getCurrentLink($absolute=true) {
+		return $this->getLink(BasicFunctions::getRoute(), $absolute);
 	}
 	
 	/**
 	 * get an application link
 	 * 
-	 * @param string $module
-	 * @param string $cmd
-	 * @param string $action
+	 * @param string $route
 	 * @param string $absolute
 	 * @return string
 	 */
-	public function getLink($module, $cmd=null, $action=null, $absolute=true) {
-		return BasicFunctions::getLink($module, $cmd, $action, $absolute);
+	public function getLink($route, $absolute=true) {
+		return BasicFunctions::getLink($route, $absolute);
 	}
 
 	/**
@@ -133,7 +104,7 @@ class TemplateFunctions {
 	 * @param string $helper
 	 * @param array $data
 	 */
-	public function getHelper($helper, $data=array()) {
+	public function getHelper($helper, $data=[]) {
 		try {
 			$helperFile = INCLUDES_PATH . 'template' . DIRECTORY_SEPARATOR . 'helper' . DIRECTORY_SEPARATOR . $helper . '.php';
 			$helperClass = '\ATFApp\Template\Helper\TemplateHelper' . ucfirst($helper);
