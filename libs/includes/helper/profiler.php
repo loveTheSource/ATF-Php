@@ -112,11 +112,11 @@ class Profiler {
 				</style>';
 		$html .= '<script type="text/javascript" src="/js/TableSort.js"></script>';
 		$html .= '<div style="width: 100%;font-size: 12px">';
-		$html .= '<pre><fieldset>';
+		$html .= '<fieldset style="font-family:monospace; margin-bottom:10px;">';
 		$html .= '<legend onclick="var el=document.getElementById(\'profiler_results\'); if (el.style.display != \'none\') {el.style.display = \'none\'} else {el.style.display = \'inline\'}" style="cursor:pointer;">';
 		$html .= '<b>P R O F I L E R</b></legend>';
 		
-		$html .= '<table id="profiler_results">';
+		$html .= '<table id="profiler_results" class="sortierbar">';
 		$html .= '<thead><tr align="left">';
 			$html .= '<th class="sortierbar">File</th>';
 			$html .= '<th class="sortierbar">Function</th>';
@@ -192,14 +192,9 @@ class Profiler {
 		$html .= '<tr align="left"><th>Profiler Overhead</th><td>' . self::getOverhead() . ' sec</td></tr>';
 		$html .= '</tbody></table>';
 		
-		$html .= '</fieldset></pre>';
+		$html .= '</fieldset>';
 		$html .= '</div>';
 	
-		$html .= '<script type="text/javascript">
-				var profilerTable = document.getElementById("profiler_results");
-				new JB_Table(profilerTable);
-				</script>';
-		
 		return $html;
 	}
 	

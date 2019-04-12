@@ -24,7 +24,7 @@ class TemplateSmarty extends BasicTemplate {
 	
 	// TODO adjust path to smarty
 	private $smartyClass = "Smarty.class.php";
-	private $templateExtension = ".tpl";
+	public $templateExtension = ".tpl";
 	
 	public function __construct() {
 		parent::__construct($this->templateExtension);

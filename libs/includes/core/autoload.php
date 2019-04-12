@@ -2,20 +2,16 @@
 
 namespace ATFApp\Core;
 
-#use \helper as helper;
-#use \core as core;
-#use \model as model;
-
 /**
  * autoloader for Core and Helper classes
  *
  * usage:
  * - require this class
- * - spl_autoload_register(array('HelperAutoload', 'loadClass'));
+ * - spl_autoload_register(['ATFApp\Core\Autoload', 'loadClass']);
  */
 class Autoload {
 	
-	private static $autoloadClasses = array();
+	private static $autoloadClasses = [];
 	
 	public function __construct() { }
 	
@@ -30,7 +26,8 @@ class Autoload {
 			$parts = explode('\\', $class);
 			$prefix = $parts[count($parts)-2];
 			$className = $parts[count($parts)-1];
-	
+			$file = false;
+
 			switch ($prefix) {
 				case "Core":
 					$file = CORE_PATH . lcfirst($className) . '.php';
@@ -44,6 +41,12 @@ class Autoload {
 					$file = MODELS_PATH . lcfirst($className) . '.php';
 					break;
 					
+				case "Controller":
+					if ($className === "BaseModule") {
+						$file = CONTROLLER_PATH . lcfirst($className) . '.php';
+					}
+					break;
+
 				default:
 					$additionalAutoloader = self::getAutoloadClasses();
 					if (array_key_exists($prefix, $additionalAutoloader)) {
@@ -54,10 +57,12 @@ class Autoload {
 					}
 			}
 			
-		#	if (!is_file($file)) {
-		#		throw new \Exception("Autoloader - file not found: " . $file . "(" . $prefix . ")");
-		#	}
-			require_once $file;
+			if ($file) {
+				if (!is_file($file)) {
+					throw new \Exception("Autoloader - file not found: " . $file . "(" . $prefix . ")");
+				}
+				require_once $file;
+			}
 		}
 	}
 	

@@ -27,7 +27,7 @@ class Auth {
 	/**
 	 * get object instance (singleton)
 	 * 
-	 * @return CoreAuth
+	 * @return \ATFApp\Core\Auth
 	 */
 	public static function getInstance() {
 		if (is_null(self::$instance)) {
@@ -83,7 +83,6 @@ class Auth {
 	 */
 	public function setLogin($userId, $userLogin, $groups=null) {
 		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_ID, $userId);
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_LOGIN, $userLogin);
 		
 		if (is_array($groups)) {
 			Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_GROUPS, $groups);
@@ -95,9 +94,7 @@ class Auth {
 	 */
 	public function setLogout() {
 		Core\Request::delParamSession(ProjectConstants::KEY_SESSION_USER_ID);
-		Core\Request::delParamSession(ProjectConstants::KEY_SESSION_USER_LOGIN);
 		Core\Request::delParamSession(ProjectConstants::KEY_SESSION_USER_GROUPS);
-		Core\Request::delParamSession(ProjectConstants::KEY_SESSION_MODEL_USER);
 	}
 	
 	/**
@@ -110,21 +107,14 @@ class Auth {
 	/**
 	 * get group memberships from session
 	 * 
-	 * @return array:
+	 * @return array
 	 */
 	public function getUserGroups() {
 		$groups = Core\Request::getParamSession(ProjectConstants::KEY_SESSION_USER_GROUPS);
 		if (is_array($groups)) {
 			return $groups;
 		}
-		return array();
-	}
-	
-	/**
-	 * get user login from session
-	 */
-	public function getUserLogin() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_USER_LOGIN);
+		return [];
 	}
 	
 	/**
@@ -148,38 +138,33 @@ class Auth {
 	 * @param string $pass
 	 */
 	public function checkLogin($login, $pass) {
-		$passCrypt = $this->getPasswordHash($pass);
 		$db = Core\Factory::getDbObj();
 		
-		$query = "SELECT 
-				id, login, name, active, user_since , last_login, user_since  
+		$query = "SELECT *
 				FROM users 
-				WHERE login = " . $db->quote($login) . " && password = " . $db->quote($passCrypt) . "; ";
+				WHERE login = " . $db->quote($login) . "; ";
 		
 		$res =  $db->query($query);
 		$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\User');
 		
 		if (count($arrayModels) == 1) {
 			$user = $arrayModels[0];
-			$this->setLogin($user->id, $login);
-			$groups = $this->setUserGroups();
-			
-			$user->setUserGroups($groups);
-			$this->setUser($user);
-			$this->setLastLogin();
-			
-			return true;
+			if (password_verify($pass, $user->password)) {
+				$this->setLogin($user->id, $login);
+				$groups = $this->setUserGroups();
+				
+				$user->setUserGroups($groups);
+				$this->setLastLogin($user);
+				
+				return true;
+			}
 		}
 		return false;
 	}
 	
-	private function setLastLogin() {
-		$userId = $this->getUserId();
-		
-		$db = Core\Factory::getDbObj();
-		$query = "UPDATE users SET last_login = current_timestamp() WHERE id = " . $db->quote($userId);
-		
-		$res = $db->query($query);
+	private function setLastLogin(\ATFApp\Models\User $user) {
+		$user->lastLogin = date('Y-m-d H:i:s');
+        $user->update(['last_login']);
 	}
 	
 	private function setUserGroups() {
@@ -195,7 +180,7 @@ class Auth {
 		$res = $db->query($query);
 		$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\Group');
 				
-		$groups = array();
+		$groups = [];
 		foreach ($arrayModels AS $group) {
 			$groups[] = $group->id;
 		}
@@ -204,32 +189,9 @@ class Auth {
 		return $arrayModels;
 	}
 	
-	private function setUser(Models\User $user) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_MODEL_USER, $user);
-	}
-	
-	/**
-	 * get ModelUser from session
-	 * 
-	 * @return ModelUser
-	 */
-	public function getUser() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_MODEL_USER);
-	}
 	
 	public function getPasswordHash($password) {
-		// TODO change to password_hash in PHP 5.5+
-		// use hash_equals for Timing attack safe string comparison
-		$salt = '$2a$07$' . $this->getSalt() . '$';
-		$passCrypt = crypt($password, $salt);
-		return $passCrypt;
+		return password_hash($password, PASSWORD_DEFAULT);
 	}
 
-	private function getSalt() {
-		$salt = trim(file_get_contents(INCLUDES_PATH . 'slt.txt'));
-		if (empty($salt)) {
-			throw new Exceptions\Core("auth security: cannot load salt");
-		}
-		return $salt;
-	}
 }

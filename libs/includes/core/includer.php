@@ -19,9 +19,19 @@ use ATFApp\Core as Core;
 abstract class Includer {
 
 	/**
+	 * get router
+	 * 
+	 * @return \ATFApp\Core\Router
+	 */
+	public static function getRouter() {
+		$obj = Router::getInstance();
+		return $obj;
+	}
+
+	/**
 	 * get lang object
 	 * 
-	 * @return Core\Lang
+	 * @return \ATFApp\Core\Lang
 	 */
 	public static function getLangObj() {
 		$obj = Lang::getInstance();
@@ -31,7 +41,7 @@ abstract class Includer {
 	/**
 	 * get config object
 	 * 
-	 * @return Core\Config
+	 * @return \ATFApp\Core\Config
 	 */
 	public static function getConfigObj() {
 		$obj = Config::getInstance();
@@ -51,7 +61,7 @@ abstract class Includer {
 	/**
 	 * get auth object
 	 * 
-	 * @return Core\Auth
+	 * @return \ATFApp\Core\Auth
 	 */
 	public static function getAuthObj() {
 		$obj = Auth::getInstance();
@@ -61,13 +71,23 @@ abstract class Includer {
 	/**
 	 * get document object
 	 * 
-	 * @return Core\Document
+	 * @return \ATFApp\Core\Document
 	 */
 	public static function getDocumentObj() {
 		$obj = Document::getInstance();
 		return $obj;
 	}
 	
+	/**
+	 * get respopnse object
+	 * 
+	 * @return \ATFApp\Core\Response
+	 */
+	public static function getResponseObj() {
+		$obj = Response::getInstance();
+		return $obj;
+	}
+
 	/**
 	 * get a template object
 	 * 

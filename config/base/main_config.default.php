@@ -7,7 +7,7 @@
 
 # application environment
 if (!defined("ENVIRONMENT")) {
-	if (isset($_SERVER['ENVIRONMENT']) && in_array($_SERVER['ENVIRONMENT'], array('debug', 'staging', 'live'))) {
+	if (isset($_SERVER['ENVIRONMENT']) && in_array($_SERVER['ENVIRONMENT'], ['debug', 'staging', 'live'])) {
 		define("ENVIRONMENT", $_SERVER['ENVIRONMENT']);
 	} else {
 		define("ENVIRONMENT", 'live'); // default if webserver/vhost has no environment assigned
@@ -15,7 +15,7 @@ if (!defined("ENVIRONMENT")) {
 }
 
 # admin emails (required for exception handling)
-if (!defined("ADMIN_EMAILS")) define("ADMIN_EMAILS", serialize(array()));
+if (!defined("ADMIN_EMAILS")) define("ADMIN_EMAILS", serialize([]));
 
 
 # main application path
@@ -29,7 +29,7 @@ if (!defined("TEMP_PATH")) define("TEMP_PATH", MAIN_PATH . "temp" . DIRECTORY_SE
 # subfolders
 if (!defined("INCLUDES_PATH")) define("INCLUDES_PATH", LIBS_PATH . "includes" . DIRECTORY_SEPARATOR);
 if (!defined("LANG_PATH")) define("LANG_PATH", LIBS_PATH . "lang" . DIRECTORY_SEPARATOR);
-if (!defined("MODULES_PATH")) define("MODULES_PATH", LIBS_PATH . "modules" . DIRECTORY_SEPARATOR);
+if (!defined("CONTROLLER_PATH")) define("MODULES_PATH", LIBS_PATH . "controller" . DIRECTORY_SEPARATOR);
 if (!defined("EXCEPTIONS_PATH")) define("EXCEPTIONS_PATH", LIBS_PATH . "exceptions" . DIRECTORY_SEPARATOR);
 if (!defined("MODELS_PATH")) define("MODELS_PATH", LIBS_PATH . "models" . DIRECTORY_SEPARATOR);
 if (!defined("APP_PATH")) define("APP_PATH", LIBS_PATH . "app" . DIRECTORY_SEPARATOR);

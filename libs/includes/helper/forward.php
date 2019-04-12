@@ -14,17 +14,19 @@ use ATFApp\Core as Core;
 
 class Forward {
 	
-	private $initWWVetCssMethod = "initWWVetCss";
-	
 	public function __construct() { }
 	
-	public function forwardTo($module, $cmd=null, $action=null) {
-		if (is_null($cmd)) $cmd = ProjectConstants::DEFAULT_CMD;
-		if (is_null($action)) $action = ProjectConstants::DEFAULT_ACTION;
+	/**
+	 * forward to internal route
+	 * 
+	 * @param $route
+	 */
+	public function forwardTo($route) {
+		if (is_null($route)) $route = ProjectConstants::ROUTE_DEFAULT;
 		
-		$router = Core\Router::getInstance();
-		if (!$router->checkRoute($module, $cmd, $action)) {
-			throw new Exceptions\Custom("forward - invalid routing: " . $module . '/' . $cmd . '/' . $action);
+		$router = Core\Includer::getRouter();
+		if (!$router->checkRoute($route)) {
+			throw new Exceptions\Custom("forward - invalid routing: " . $route);
 		} else {
 			$counter = $this->countForward();
 			$this->setForwarding();
@@ -32,15 +34,14 @@ class Forward {
 			if ($counter > BasicFunctions::getConfig('project_config', 'forwarding_limit')) {
 				throw new Exceptions\Custom("forward limit reached: " . $counter);
 			} else {
-				$this->performForward($action, $cmd, $module);
+				$this->performForward($route, $router->getRouteConfig($route));
 			}
 		}
 	}
 	
-	private function performForward($action, $cmd=null, $module=null) {
-		BasicFunctions::setAction($action);
-		BasicFunctions::setCmd($cmd);
-		BasicFunctions::setModule($module);
+	private function performForward($route, $conf) {
+		BasicFunctions::setRoute($route);
+		BasicFunctions::setModule($conf['module']);
 		
 		// renew document
 		$this->renewDocument();
@@ -83,10 +84,5 @@ class Forward {
 		// renew doc abject and set defaults
 		$bootstrap = new Core\Bootstrap();
 		$bootstrap->initDocument();
-		
-		$method = $this->initWWVetCssMethod;
-		if (method_exists($bootstrap, $method)) {
-			$bootstrap->$method();
-		}
 	}
 }

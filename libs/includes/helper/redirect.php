@@ -8,6 +8,7 @@ use ATFApp\Exceptions as Exceptions;
 
 use ATFApp\Helper as Helper;
 use ATFApp\Core as Core;
+use ATFApp\Core\Includer;
 
 /**
  * HelperRedirect
@@ -21,7 +22,7 @@ use ATFApp\Core as Core;
 class Redirect {
 	
 	public $defaultRedirect = 307;
-	public $supportedCodes = array(303, 307, 308);
+	public $supportedCodes = [303, 307, 308];
 	
 	public function __construct() { }
 	
@@ -53,7 +54,7 @@ class Redirect {
 		// save system messages
 		BasicFunctions::saveMessages();
 		
-		$response = new Core\Response();
+		$response = Includer::getResponseObj();
 		if (!is_null($code)) {
 			$response->setStatusCode($code);
 		}

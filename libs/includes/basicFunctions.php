@@ -97,7 +97,7 @@ class BasicFunctions {
 	 * @param string $langCode
 	 */
 	public static function setLanguage($langCode) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_LANG, $langCode);
+		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_LANG, $langCode);
 	}
 	/**
 	 * get current language
@@ -105,7 +105,7 @@ class BasicFunctions {
 	 * @return string|NULL
 	 */
 	public static function getLanguage() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_USER_LANG);
+		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_LANG);
 	}
 	
 	/**
@@ -180,42 +180,71 @@ class BasicFunctions {
 	}
 	
 	
-	# ++++++++++++++++++++++ routing (module/cmd/action) ++++++++++++++++++++++
-	
 	/**
 	 * get link to a certain module/cmd/action
 	 *
-	 * @param string $module
-	 * @param string $cmd
-	 * @param string $action
+	 * @param array $route
 	 * @param boolean $absolute
 	 * @param string $paramsString
 	 * @return string
 	 */
-	public static function getLink($module, $cmd=null, $action=null, $absolute=true, $paramsString='') {
+	public static function getLink($route, $absolute=true, $paramsString='') {
 		if ($absolute) {
-			$link = Core\Request::getHost() . "/";
+			$link = Core\Request::getHost();
 		} else {
-			$link = "/";
+			$link = "";
 		}
 	
-		// add module
-		$link .= $module . '/';
-	
-		// add cmd
-		if (!is_null($cmd)) {
-			$link .= $cmd . '/';
-		}
-	
-		// add action
-		if (!is_null($action)) {
-			$link .= $action . '/';
+		if($route) {
+			$link .= $route;
 		}
 	
 		return $link . $paramsString;
 	}
+
+
+	# ++++++++++++++++++++++ routing ++++++++++++++++++++++	
 	
+	/**
+	 * save route to session
+	 * 
+	 * @param string $route
+	 */
+	public static function setRouteSession($route) {
+		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_ROUTE, $route);
+	}
+	/**
+	 * get route from session
+	 * 
+	 * @return string
+	 */
+	public static function getRouteSession() {
+		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_ROUTE);
+	}
 	
+	/**
+	 * set current route (global)
+	 * 
+	 * @param string $route
+	 * @param boolean $saveToSession
+	 */
+	public static function setRoute($route, $saveToSession=false) {
+		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_ROUTE, $route);
+		
+		if ($saveToSession)
+			self::setRouteSession($route);
+	}
+	/**
+	 * get current route (global)
+	 * 
+	 * @return string
+	 */
+	public static function getRoute() {
+		return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_ROUTE);
+	}
+
+	/** ++++++++++++++++++++++ module ++++++++++++++++++++++++++++++ */
+
 	/**
 	 * save module to session
 	 * 
@@ -231,38 +260,6 @@ class BasicFunctions {
 	 */
 	public static function getModuleSession() {
 		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_MODULE);
-	}
-	/**
-	 * save cmd to session
-	 * 
-	 * @param string $cmd
-	 */
-	public static function setCmdSession($cmd) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_CMD, $cmd);
-	}
-	/**
-	 * get cmd from session
-	 * 
-	 * @return string
-	 */
-	public static function getCmdSession() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_CMD);
-	}
-	/**
-	 * save action to session
-	 * 
-	 * @param string $action
-	 */
-	public static function setActionSession($action) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_ACTION, $action);
-	}
-	/**
-	 * get action from session
-	 * 
-	 * @return string
-	 */
-	public static function getActionSession() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_ACTION);
 	}
 	
 	/**
@@ -283,49 +280,8 @@ class BasicFunctions {
 	 * @return string
 	 */
 	public static function getModule() {
-		return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_MODULE);;
+		return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_MODULE);
 	}
-	/**
-	 * set current cmd (global)
-	 * 
-	 * @param string $cmd
-	 * @param boolean $saveToSession
-	 */
-	public static function setCmd($cmd, $saveToSession=false) {
-		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_CMD, $cmd);
-		
-		if ($saveToSession)
-			self::setCmdSession($cmd);
-	}
-	/**
-	 * get current cmd (global)
-	 * 
-	 * @return string
-	 */
-	public static function getCmd() {
-		return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_CMD);;
-	}
-	/**
-	 * set current action (global)
-	 * 
-	 * @param string $action
-	 * @param boolean $saveToSession
-	 */
-	public static function setAction($action, $saveToSession=false) {
-		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_ACTION, $action);
-		
-		if ($saveToSession)
-			self::setActionSession($action);
-	}
-	/**
-	 * get current action (global)
-	 * 
-	 * @return string
-	 */
-	public static function getAction() {
-		return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_ACTION);
-	}
-	
 
 	# ++++++++++++++++++++++ system messsages ++++++++++++++++++++++
 	
@@ -339,14 +295,14 @@ class BasicFunctions {
 	public static function addMessage($type, $msg, $permanent=false) {
 		$messages = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_SYSTEM_MSG);
 		if (is_null($messages)) {
-			$messages = array();
+			$messages = [];
 			
 		}
-		$messages[] = array(
+		$messages[] = [
 			'type' => $type,
 			'msg' => $msg,
 			'permanent' => $permanent
-		);
+		];
 		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_SYSTEM_MSG, $messages);
 	}
 	
@@ -360,7 +316,7 @@ class BasicFunctions {
 		if (is_array($messages)) {
 			return $messages;
 		} else {
-			return array();
+			return [];
 		}		
 	}
 	
@@ -389,42 +345,6 @@ class BasicFunctions {
 	}
 	
 	
-	# ++++++++++++++++++++++ other ++++++++++++++++++++++
-	
-	/**
-	 * set operator id 
-	 * 
-	 * @param integer $operatorId
-	 */
-	public static function setOperator($operatorId) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_OPERATOR, $operatorId);
-	}
-	
-	/**
-	 * get operator id 
-	 * @return integer
-	 */
-	public static function getOperator() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_OPERATOR);
-	}
-	
-	/**
-	 * set operator name
-	 *
-	 * @param string $operatorName
-	 */
-	public static function setOperatorName($operatorName) {
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_OPERATOR_NAME, $operatorName);
-	}
-	
-	/**
-	 * get operator name
-	 * 
-	 * @return string
-	 */
-	public static function getOperatorName() {
-		return Core\Request::getParamSession(ProjectConstants::KEY_SESSION_OPERATOR_NAME);
-	}
 	
 	
 }

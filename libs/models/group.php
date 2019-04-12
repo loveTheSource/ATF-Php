@@ -7,13 +7,13 @@ require_once 'simpleModel.php';
 class Group extends SimpleModel {
 	
 	protected $table = "groups";
-	protected $primaryKeyColumns = array('id');
-	protected $updateColumns = array('groupname', 'active');
-	
+	protected $tablePrimaryKeys = ['id'];
 	// table columns
-	public $id = null;
-	public $groupname = null;
-	public $active = null;
+	protected $tableColumns = [
+		'id',
+		'groupname', 
+		'active'
+	];
 	
 	public function __construct() {	}
 	

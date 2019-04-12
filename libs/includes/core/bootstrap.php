@@ -55,7 +55,7 @@ class Bootstrap {
 	public function initAutoloader() {
 		require_once CORE_PATH . 'autoload.php';
 		spl_autoload_extensions(".php");
-		spl_autoload_register(array('ATFApp\Core\Autoload', 'loadClass'));
+		spl_autoload_register(['ATFApp\Core\Autoload', 'loadClass']);
 	}
 	
 	/**
@@ -119,7 +119,7 @@ class Bootstrap {
 	 * 
 	 */
 	public function initRouting() {
-		$router = Core\Router::getInstance();
+		$router = Core\Includer::getRouter();
 		$router->manageRoute();
 	}
 	

@@ -4,13 +4,13 @@
  * 
  * database config
  * 
- * $dbConfig['default'] = array(
+ * $dbConfig['default'] = [
  *	'type' => 'mysql',				// pdo type
  *	'host' => 'localhost',			// ip / host
  * 	'user' => 'db_user',			// username
  *	'pass' => 'password',			// password
  *	'db'   => 'db_name'				// database
- * );
+ * ];
  * 
  * currently supported types:
  * mysql, pgsql, sqlite
@@ -21,14 +21,14 @@
  * 
  */
 
-$dbConfig = array();
+$dbConfig = [];
 
-$dbConfig['default'] = array(
+$dbConfig['default'] = [
 	'type' => 'mysql',
-	'host' => 'localhost',
+	'host' => 'db',
 	'user' => 'root',
-	'pass' => 'abc123',
-	'db' => 'webframework'
-);
+	'pass' => 'pass123',
+	'db' => 'atfphp'
+];
 
 return $dbConfig;

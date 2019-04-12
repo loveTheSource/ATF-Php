@@ -13,7 +13,8 @@ require_once 'baseModel.php';
 
 abstract class SimpleModel extends BaseModel {
 	
-	
+	protected $dbConnection = 'default';
+
 	public function __construct() {	}
 	
 	/**
@@ -42,7 +43,6 @@ abstract class SimpleModel extends BaseModel {
 		$query = "UPDATE `" . $table . "` SET ";
 		
 		$c = 0;
-		$mappings = $this->getColumnMappings();
 		$params = [];
 		foreach ($columns AS $i => $col) {
 			if (!in_array($col, $updateCols)) {
@@ -50,7 +50,6 @@ abstract class SimpleModel extends BaseModel {
 			} else {
 				if ($c != 0) $query .= ", ";
 				$colName = $col;
-				if (array_key_exists($col, $mappings)) $col = $mappings[$col];
 				$query .= " `" . $colName . "` = :" . $colName;
 				$params[$colName] = $this->$col;
 				$c++;
@@ -60,10 +59,10 @@ abstract class SimpleModel extends BaseModel {
 		$query .= " WHERE " . $this->getWherePrimaries($db) . "; ";
 		
 		$statement = $db->prepare($query);
-		$statementHandler = new Core\StatementHandler($statement);
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
 		$res = $statementHandler->execute($params);
-		if ($res === true) {
-			return true;
+		if ($res !== false) {
+			return $res;
 		} else {
 			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
 		}
@@ -84,18 +83,17 @@ abstract class SimpleModel extends BaseModel {
 		$query = 'INSERT INTO ' . $this->getTable();
 		$queryCols = ' (';
 		$queryVals = ' (';
+		$queryData = [];
 		
 		$c = 0;
-		$mappings = $this->getColumnMappings();
 		foreach ($columns AS $i => $col) {
 			if ($c != 0) {
 				$queryCols .= ', ';
 				$queryVals .= ', ';
 			}
 			$queryCols .= ' `' . $col . '`';
-			if (array_key_exists($col, $mappings)) $col = $mappings[$col];
-			$quoted = (is_null($this->$col)) ? 'NULL' : $db->quote($this->$col);
-			$queryVals .= $quoted;
+			$queryData[$col] = $this->$col;
+			$queryVals .= ' :' . $col;
 			$c++;
 		}
 		
@@ -103,10 +101,12 @@ abstract class SimpleModel extends BaseModel {
 		$queryVals .= ') ';
 		
 		$query .= $queryCols . ' VALUES ' . $queryVals . '; ';
-		
-		$res = $db->exec($query);
-		
-		if ($res === 1) {
+
+		$statement = $db->prepare($query);
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
+		$res = $statementHandler->execute($queryData);
+	
+		if ($res !== false) {
 			// try set the last insert id to the model as primary key
 			$primaryKeyColumns = $this->getPrimaryKeyColumns();
 			if (count($primaryKeyColumns) == 1) {
@@ -129,12 +129,24 @@ abstract class SimpleModel extends BaseModel {
 	 */
 	public function delete() {
 		$db = $this->getDb();
+		$queryParams = [];
 		
-		$query = 'DELETE FROM `' . $this->getTable() . '` WHERE ' . $this->getWherePrimaries($db) . "; ";
-		$res = $db->exec($query);
+		$query = 'DELETE FROM `' . $this->getTable() . '` WHERE ';
+		foreach ($this->getPrimaryKeyColumns() as $i => $col) {
+			if ($i !== 0) {
+				$query .= ' && ';
+			}
+			$queryParams[$col] = $this->$col;
+			$query .= ' `' . $col . '` = :'.$col;
+		}
+		$query .= ';';
 		
+		$statement = $db->prepare($query);
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
+		$res = $statementHandler->execute($queryParams);
+
 		if ($res !== false) {
-			return true;
+			return $res;
 		} else {
 			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
 		}
@@ -148,7 +160,7 @@ abstract class SimpleModel extends BaseModel {
 	 * @param array $keys
 	 * @param boolean $ignoreCache
 	 * @throws Exceptions\Db
-	 * @return boolean false|SimpleModel actually an instance of the calling class that extends SimpleModel
+	 * @return boolean|SimpleModel actually false or an instance of the model
 	 */
 	public function selectByPrimaryKeys(Array $keys, $ignoreCache=false) {
 		$primaryKeys = $this->getPrimaryKeyColumns();  // array of primary key columns
@@ -186,13 +198,12 @@ abstract class SimpleModel extends BaseModel {
 			$keysCounter++;
 		}
 		$query .= "; ";
-		#$result = $db->query($query);
 		$statement = $db->prepare($query);
 		
-		$statementHandler = new Core\StatementHandler($statement);
-		$result = $statementHandler->execute($params);
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
+		$result = $statementHandler->execute($params, 'cols');
 		
-		if ($result === true) {
+		if ($result !== false) {
 			$modelsList = $statement->fetchAll(\PDO::FETCH_CLASS, $modelClass);
 			
 			$singleRow = false;
@@ -206,9 +217,11 @@ abstract class SimpleModel extends BaseModel {
 					$singleRow = false;
 				}
 			}
+
 			if (ProjectConstants::MODELS_QUERY_CACHE) {
 				$this->saveToQueryCache($cacheKey, $singleRow);
 			}
+
 			return $singleRow;
 			
 		} else {
@@ -216,7 +229,69 @@ abstract class SimpleModel extends BaseModel {
 		}
 	}
 
+	/**
+	 * select rows from db by columns/values
+	 * 
+	 * @param array $columnValues
+	 * @param $boolean $ignoreCache
+	 * @throws Exception\Db
+	 * @return boolean|array false or an array of models 
+	 */
+	public function selectByColumns(Array $columnValues, $ignoreCache=false) {
+		$cacheKey = 'selByCols_' . $this->getTable() . '_';
+		foreach ($columnValues AS $col => $val) {
+			$cacheKey .= $col . '=' . $val . '-';
+		}
+		if (!$ignoreCache && ProjectConstants::MODELS_QUERY_CACHE) {
+			$cacheResult = $this->getFromQueryCache($cacheKey);
+			if (!is_null($cacheResult)) {
+				return $cacheResult;
+			}
+		}
+		
+		$modelClass = get_called_class();  // model class to use
 	
+		$db = $this->getDb();
+	
+		$query = "SELECT * FROM `" . $this->getTable() . "` WHERE ";
+	
+		$keysCounter = 0;
+		$params = [];
+		foreach ($columnValues AS $col => $val) {
+			if ($keysCounter !== 0) {
+				$query .= ' && ';
+			}
+			$query .= ' `' . $col . '` = :' . $col;
+			$params[$col] = $val;
+			$keysCounter++;
+		}
+		$query .= "; ";
+
+		$statement = $db->prepare($query);
+		
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
+		$result = $statementHandler->execute($params, 'cols');
+		
+		if ($result !== false) {
+			$modelsList = $statement->fetchAll(\PDO::FETCH_CLASS, $modelClass);
+			
+			if ($modelsList !== false) {
+				if (count($modelsList) >= 1) {
+					// all ok
+				}
+			} else {
+				$modelsList = [];
+			}
+			if (ProjectConstants::MODELS_QUERY_CACHE) {
+				$this->saveToQueryCache($cacheKey, $modelsList);
+			}
+			return $modelsList;
+			
+		} else {
+			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
+		}
+	}
+
 	/**
 	 * select row(s) from db and return array of models
 	 * based on given query
@@ -225,9 +300,10 @@ abstract class SimpleModel extends BaseModel {
 	 * @param array $params
 	 * @param boolean $ignoreCache
 	 * @throws Exceptions\Db
-	 * @return boolean|SimpleModel actually an instance of the calling class that extends SimpleModel
+	 * @return boolean|SimpleModel actually an array of instances of the calling class that extends SimpleModel
 	 */
-	public function selectByQuery($query, $params=array(), $ignoreCache=false) {
+	/*
+	public function selectByQuery($query, $params=[], $ignoreCache=false) {
 		$cacheKey = 'selByQuery_' . $this->getTable() . '_' . $query . '_' . var_export($params, true);
 		if (!$ignoreCache && ProjectConstants::MODELS_QUERY_CACHE) {
 			$cacheResult = $this->getFromQueryCache($cacheKey);
@@ -241,7 +317,7 @@ abstract class SimpleModel extends BaseModel {
 		
 		$statement = $db->prepare($query);
 		
-		$statementHandler = new Core\StatementHandler($statement);
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
 		$result = $statementHandler->execute($params);
 		if ($result === true) {
 			$modelsList = $statement->fetchAll(\PDO::FETCH_CLASS, $modelClass);
@@ -249,7 +325,7 @@ abstract class SimpleModel extends BaseModel {
 				if (is_array($modelsList) && count($modelsList) >= 1) {
 					// all ok
 				} else {
-					$modelsList = array();
+					$modelsList = [];
 				}
 			} else {
 				$modelsList = false;
@@ -263,14 +339,16 @@ abstract class SimpleModel extends BaseModel {
 			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
 		}
 	}
-		
+	*/
+
 	/**
 	 * read complete table and return array of models
 	 * 
 	 * @param integer $limit
 	 * @param array $orderBy
+	 * @return SimpleModel actually an array of models
 	 */
-	public function selectAll($start=0, $limit=null, $orderBy=array(), $ignoreCache=false) {
+	public function selectAll($start=0, $limit=null, $orderBy=[], $ignoreCache=false) {
 		$cacheKey = 'selAll_' . $this->getTable() . '_' . $start . '-';
 		$cacheKey .= (is_null($limit)) ? 'null' : $limit;
 		foreach ($orderBy AS $col => $sort) {
@@ -293,10 +371,12 @@ abstract class SimpleModel extends BaseModel {
 			$query .= " ORDER BY ";
 			$c = 0;
 			foreach ($orderBy AS $col => $sort) {
-				$col = trim(preg_replace('/[^\w\d-]/si', '', $col)); //remove all illegal chars
-				if (property_exists($this, $col)) {
+				$col = trim(preg_replace('/[^\w\d\_\-]/si', '', $col)); //remove all illegal chars
+				if (in_array($col, $this->tableColumns) && property_exists($this, $col)) {
+					if ($c != 0) {
+						$query .= ", ";
+					}
 					$sort = (strtolower($sort) == 'asc') ? 'ASC' : 'DESC';
-					if ($c != 0) $query .= ", ";
 					$query .= '`' . $col . '` ' . $sort;
 					$c++;
 				}			
@@ -321,18 +401,18 @@ abstract class SimpleModel extends BaseModel {
 		
 		$query .= "; ";
 	
-		// select from db
-		$result = $db->query($query);
+		$statement = $db->prepare($query);
+		// select from db		
+		$statementHandler = new Core\StatementHandler($statement, $this->dbConnection);
+		$result = $statementHandler->execute([], 'cols');
 		if ($result !== false) {
-			$modelsList = $result->fetchAll(\PDO::FETCH_CLASS, $modelClass);
+			$modelsList = $statementHandler->fetchAll(\PDO::FETCH_CLASS, $modelClass);
 			if ($modelsList !== false) {
 				if (count($modelsList) >= 1) {
 					// all ok
-				} else {
-					$modelsList = array();
 				}
 			} else {
-				$modelsList = false;
+				$modelsList = [];
 			}
 			
 			if (ProjectConstants::MODELS_QUERY_CACHE) {
@@ -352,7 +432,7 @@ abstract class SimpleModel extends BaseModel {
 	 * @param \PDO $db
 	 * @return string
 	 */
-	private function getWherePrimaries(\PDO $db) {
+	private function getWherePrimaries(\ATFApp\Core\PdoDb $db) {
 		$primaryKeyColumns = $this->getPrimaryKeyColumns();
 		$where = "";
 		

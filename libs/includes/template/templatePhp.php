@@ -13,7 +13,7 @@ require_once 'basicTemplate.php';
 
 class TemplatePhp extends BasicTemplate {
 	
-	private $templateExtension = ".phtml";
+	public $templateExtension = ".phtml";
 	
 	public function __construct() {
 		parent::__construct($this->templateExtension);
@@ -37,28 +37,6 @@ class TemplatePhp extends BasicTemplate {
 	}
 	
 	/**
-	 * render module template
-	 * 
-	 * @param boolean $display
-	 * @return string
-	 */
-	public function renderModule($display=false) {
-		$path = $this->getModuleTemplate();
-		return $this->renderFile($path, $display);
-	}
-	
-	/**
-	 * render cmd template
-	 * 
-	 * @param boolean $display
-	 * @return string
-	 */
-	public function renderCmd($display=false) {
-		$path = $this->getCmdTemplate();
-		return $this->renderFile($path, $display);
-	}
-	
-	/**
 	 * render action template
 	 * 
 	 * @param boolean $display
@@ -67,6 +45,20 @@ class TemplatePhp extends BasicTemplate {
 	public function renderAction($display=false) {
 		$path = $this->getActionTemplate();
 		return $this->renderFile($path, $display);
+	}
+	
+	/**
+	 * render module template
+	 * 
+	 * @param boolean $display
+	 * @return string
+	 */
+	public function renderModule($display=false) {
+		$path = $this->getModuleTemplate();
+		if (file_exists($path)) {
+			return $this->renderFile($path, $display);
+		}
+		return false;
 	}
 	
 	/**
@@ -94,6 +86,7 @@ class TemplatePhp extends BasicTemplate {
 				throw new Exceptions\Custom("php template file not found: " . $templateFile);
 			}
 			
+			// require class for template functions
 			require_once INCLUDES_PATH . "template" . DIRECTORY_SEPARATOR . "templateFunctions.php";
 			$obj = new TemplFuncs\TemplateFunctions();
 			
@@ -102,7 +95,7 @@ class TemplatePhp extends BasicTemplate {
 			
 			// start buffer
 			ob_start();
-			
+
 			// load template
 			include ($templateFile);
 			$htmlCode = ob_get_contents();

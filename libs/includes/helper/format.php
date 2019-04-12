@@ -78,7 +78,7 @@ class Format {
 	 * @return string
 	 */
 	public static function cleanupText($text, $removeSpaces=true) {
-		$chars2replace = array(
+		$chars2replace = [
 		    'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 
 		    'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 
 		    'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 
@@ -86,7 +86,7 @@ class Format {
 		    'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 
 		    'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 
 		    'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
-		);
+		];
 		
 		$text = strtr($text, $chars2replace);
 		$text = str_replace('&', '+', $text);  // replace '&'
@@ -111,14 +111,14 @@ class Format {
 	public static function formatBytes($bytes, $precision=2) {
 		$result = $bytes;
 		$bytes = floatval($bytes);
-		$bytesTable = array(
+		$bytesTable = [
 			"PB" => 1024 * 1024 * 1024 * 1024 * 1024,
 			"TB" => 1024 * 1024 * 1024 * 1024,
 			"GB" => 1024 * 1024 * 1024,
 			"MB" => 1024 * 1024,
 			"KB" => 1024,
 			"B"  => 1,
-		);
+		];
 		
 		foreach($bytesTable as $unit => $b) {
 			if($bytes >= $b) {

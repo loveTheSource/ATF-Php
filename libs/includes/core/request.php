@@ -156,7 +156,7 @@ class Request {
 	public static function getParamGet($key, $sanitize=true) {
 		if (array_key_exists($key, $_GET)) {
 			if ($sanitize && !is_array($_GET[$key])) {
-				return strip_tags($_GET[$key]);
+				return filter_var($_GET[$key], FILTER_SANITIZE_STRING);
 			} else {
 				return $_GET[$key];
 			}
@@ -182,7 +182,7 @@ class Request {
 	public static function getParamPost($key, $sanitize=true) {
 		if (array_key_exists($key, $_POST)) {
 			if ($sanitize && !is_array($_POST[$key])) {
-				return strip_tags($_POST[$key]);
+				return filter_var($_POST[$key], FILTER_SANITIZE_STRING);
 			} else {
 				return $_POST[$key];
 			}
