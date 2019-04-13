@@ -1,6 +1,6 @@
 <?php
 
-namespace ATFApp\Core;
+namespace ATFApp\Core\Db;
 
 use ATFApp\BasicFunctions;
 use ATFApp\ProjectConstants;
@@ -14,8 +14,15 @@ class StatementHandler {
 	private $dbConnection = 'default';
 	private $useProfiler = false;
 	private $statement = null;
-	
-	public function __construct(\PDOStatement $statement, $dbConnection=null) {
+	private $db = null;
+
+	/**
+	 * constructor
+	 * 
+	 * @param string $query
+	 * @param string $dbConnection
+	 */
+	public function __construct(string $query, string $dbConnection=null) {
 		if (BasicFunctions::useProfiler()) {
 			$this->useProfiler = true;
 		}
@@ -24,6 +31,9 @@ class StatementHandler {
 			$this->dbConnection = $dbConnection;
 		}
 		
+		$this->db = Core\Factory::getDbObj($this->dbConnection);
+		$statement = $this->db->prepare($query);
+
 		$this->statement = $statement;
 	}
 
@@ -63,8 +73,17 @@ class StatementHandler {
 		return false;
 	}
 
-	public function fetchAll($fetchStyle, $class) {
+	public function fetchAll($fetchStyle=null, $class=null) {
 		return $this->statement->fetchAll($fetchStyle, $class);
+	}
+
+
+	public function getErrors() {
+		return $this->statement->errorInfo();
+	}
+
+	public function getLastInsertId() {
+		return $this->db->lastInsertId();
 	}
 }
 

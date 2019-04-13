@@ -8,9 +8,6 @@ use ATFApp\Exceptions;
 
 use ATFApp\Core;
 
-require_once 'db' . DIRECTORY_SEPARATOR . 'pdoDb.php';
-require_once 'db' . DIRECTORY_SEPARATOR . 'statementHandler.php';
-
 /**
  * Core Db
  * manages db PDO connections
@@ -71,25 +68,28 @@ class Db {
 					];
 					if (BasicFunctions::useProfiler()) {
 						// PdoProfiler: PdoDb with profiler
-						require_once 'db' . DIRECTORY_SEPARATOR . 'pdoProfiler.php';
-						$dbh = new Core\PdoProfiler($dsn, $connConfig['user'], $connConfig['pass'], $options);
+						$dbh = new Core\Db\PdoProfiler($dsn, $connConfig['user'], $connConfig['pass'], $options);
 					} else {
-						$dbh = new Core\PdoDb($dsn, $connConfig['user'], $connConfig['pass'], $options);
+						$dbh = new Core\Db\PdoDb($dsn, $connConfig['user'], $connConfig['pass'], $options);
 					}
 					break;
 					
 				case 'pgsql':
-					// TODO untested!!!
 					$dsn = 'pgsql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
-					$options = [];
-					$dbh = new Core\PdoDb($dsn, $connConfig['user'], $connConfig['pass'], $options);
+					$options = ";options='-c client_encoding=utf8'";
+					if (BasicFunctions::useProfiler()) {
+						// PdoProfiler: PdoDb with profiler
+						$dbh = new Core\Db\PdoProfiler($dsn . $options, $connConfig['user'], $connConfig['pass']);
+					} else {
+						$dbh = new Core\Db\PdoDb($dsn . $options, $connConfig['user'], $connConfig['pass']);
+					}
 					break;
 					
 				case 'sqlite':
 					// TODO untested!!!
 					// resolves to either 'sqlite:/path/to/db/file' or 'sqlite::memory'
 					$dsn = 'sqlite:' . $connConfig['host'];
-					$dbh = new Core\PdoDb($dsn, null, null, []);
+					$dbh = new Core\Db\PdoDb($dsn, null, null, []);
 					break;
 					
 				default:

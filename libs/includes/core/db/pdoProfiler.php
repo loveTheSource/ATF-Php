@@ -1,6 +1,6 @@
 <?php
 
-namespace ATFApp\Core;
+namespace ATFApp\Core\Db;
 
 use ATFApp\BasicFunctions;
 use ATFApp\ProjectConstants;
@@ -13,7 +13,7 @@ class PdoProfiler extends PdoDb {
 	private $decimals = 6;
 	private $connectionsCounter = 0;
 	
-	public function __construct($dsn, $username, $passwd, $options) {
+	public function __construct($dsn, $username, $passwd, $options = null) {
 		if (BasicFunctions::useProfiler()) {
 			$this->useProfiler = true;
 		}

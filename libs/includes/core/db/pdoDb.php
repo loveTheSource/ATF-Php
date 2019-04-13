@@ -1,6 +1,6 @@
 <?php
 
-namespace ATFApp\Core;
+namespace ATFApp\Core\Db;
 
 use ATFApp\BasicFunctions;
 use ATFApp\ProjectConstants;
@@ -27,7 +27,7 @@ class PdoDb extends \PDO {
 			if (in_array($part, $this->statementsToLog)) {
 				// TODO ALWAYS REMEMBER: whenever you think about renaming the sql_log table... adjust the next line as well!!!
 				// otherwise the code will crash because it will 'recursively' write a log for a log for a log... ;)
-				if (strpos($query, 'INSERT INTO sql_log ') === false && strpos($query, 'INSERT INTO `sql_log` ') === false) {
+				if (strpos($query, 'INSERT INTO sql_log ') === false) {
 					$auth = Factory::getAuthObj();
 
 					$sqlLogModel = new Model\SqlLog();

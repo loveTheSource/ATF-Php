@@ -98,11 +98,7 @@ class DbUpdater {
 		$query = $statementData['query'];
 		$params = $statementData['params'];
 		
-		$db = Core\Factory::getDbObj($this->dbConnection);
-		
-		$statement = $db->prepare($query);
-		
-		$statementHandler = new Core\StatementHandler($statement);
+		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
 		$res = $statementHandler->execute($params);
 		
 		if ($res !== false) {
@@ -128,7 +124,7 @@ class DbUpdater {
 		$params = [];
 
 		foreach ($this->updateValues as $col => $value) {
-			$query .= " `" . $col . "` = :" . $col;
+			$query .= " " . $col . " = :" . $col;
 			$params[$col] = $value;
 	
 		}

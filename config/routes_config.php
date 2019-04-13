@@ -49,22 +49,14 @@
 $routesConfig = [];
 
 
-// test module
-$routesConfig['/test'] = [
-	'module' => 'test',
-	'controller' => 'TestController',
+// demo module
+/*
+$routesConfig['/demo'] = [
+	'module' => 'demo',
+	'controller' => 'DemoController',
 	'action' => 'index',
-	'template' => 'index.phtml',
-	'subroutes' => [
-		'/test' => [
-			'module' => 'test',
-			'controller' => 'TestController',
-			'action' => 'test',
-			'template' => 'test.phtml',
-			'access' => []
-		]
-	]
+	'template' => 'index.phtml'
 ];
-
+*/
 
 return $routesConfig;

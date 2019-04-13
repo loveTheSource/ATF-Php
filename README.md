@@ -1,7 +1,7 @@
 # ATF-Php
 **Another Tiny Framework for PHP**
 
-Small, fast and lightweight MVC framework for PHP 5.4+
+Small, fast and lightweight MVC framework for PHP 5.5+
 
 ## State of development
 This software is in early alpha status. Not ready for productive use (yet)

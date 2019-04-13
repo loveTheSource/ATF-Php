@@ -21,16 +21,6 @@ class User extends SimpleModel {
 	];
 	protected $tableColumnsProtected = ['user_since'];
 	
-	/*
-	public $id = null;
-	public $login = null;
-	public $password = null;
-	public $lastLogin = null;
-	public $userSince = null;
-	public $active = null;
-	public $name = null;
-	*/
-
 	public function __construct() {	}
 	
 	/**
