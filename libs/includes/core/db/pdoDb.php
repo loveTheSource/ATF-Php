@@ -1,6 +1,6 @@
 <?php
 
-namespace ATFApp\Core;
+namespace ATFApp\Core\Db;
 
 use ATFApp\BasicFunctions;
 use ATFApp\ProjectConstants;
