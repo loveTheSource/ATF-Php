@@ -89,6 +89,16 @@ abstract class Includer {
 	}
 
 	/**
+	 * get statement handler (db)
+	 * 
+	 * @return \ATFApp\Core\Db\StatementHandler
+	 */
+	public static function getStatementHandler($query, $dbConnection) {
+		$obj = new Db\StatementHandler($query, $dbConnection);
+		return $obj;
+	}
+
+	/**
 	 * get a template object
 	 * 
 	 * @param string $engine

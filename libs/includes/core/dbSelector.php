@@ -132,22 +132,18 @@ class DbSelector {
 		$query = $statementData['query'];
 		$params = $statementData['params'];
 		
-		$db = Core\Factory::getDbObj($this->dbConnection);
-		
-		$statement = $db->prepare($query);
-		
-		$statementHandler = new Core\StatementHandler($statement);
+		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
 		$res = $statementHandler->execute($params);
 		
 		if ($res !== false) {
 			switch ($fetchType) {
 				case "class":
-					$result = $statement->fetchAll(\PDO::FETCH_CLASS, $class);
+					$result = $statementHandler->fetchAll(\PDO::FETCH_CLASS, $class);
 					break;
 
 				case "array":
 				default:
-					$result = $statement->fetchAll();
+					$result = $statementHandler->fetchAll();
 			}
 			
 			return $result;

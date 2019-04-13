@@ -24,9 +24,14 @@
 $dbConfig = [];
 
 $dbConfig['default'] = [
-	'type' => 'mysql',
-	'host' => 'db',
-	'user' => 'root',
+	// 'type' => 'mysql',
+	// 'host' => 'db',
+	// 'user' => 'root',
+	// 'pass' => 'pass123',
+	// 'db' => 'atfphp'
+	'type' => 'pgsql',
+	'host' => 'postgres',
+	'user' => 'user',
 	'pass' => 'pass123',
 	'db' => 'atfphp'
 ];

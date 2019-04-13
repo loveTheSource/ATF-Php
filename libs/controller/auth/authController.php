@@ -26,30 +26,6 @@ class AuthController extends \ATFApp\Controller\BaseController {
 	public function indexAction() {
 		// forward to login action
 		$this->forwardToRoute('/auth/login');
-
-		// create new user
-		$auth = Core\Factory::getAuthObj();
-		$user = new Model\User();
-		
-		/*  // select all
-		$all = $user->selectAll();
-		echo '<pre>';var_dump($all);die();
-		*/
-
-		/*  // select one and delete
-		$list = $user->selectByColumns(['login'=>'test']);
-		$one = $list[0];
-		var_dump($one);
-		$res = $one->delete();
-		var_dump($res);
-		*/
-
-		/*   // create user
-		$user->login = "test";
-		$user->password = $auth->getPasswordHash("abc123");
-		$user->active = 1;
-		$user->insert();
-		*/
 	}
 	
 	/**

@@ -79,10 +79,15 @@ class Db {
 					break;
 					
 				case 'pgsql':
-					// TODO untested!!!
 					$dsn = 'pgsql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
-					$options = [];
-					$dbh = new Core\PdoDb($dsn, $connConfig['user'], $connConfig['pass'], $options);
+					$options = ";options='-c client_encoding=utf8'";
+					if (BasicFunctions::useProfiler()) {
+						// PdoProfiler: PdoDb with profiler
+						require_once 'db' . DIRECTORY_SEPARATOR . 'pdoProfiler.php';
+						$dbh = new Core\PdoProfiler($dsn . $options, $connConfig['user'], $connConfig['pass']);
+					} else {
+						$dbh = new Core\PdoDb($dsn . $options, $connConfig['user'], $connConfig['pass']);
+					}
 					break;
 					
 				case 'sqlite':

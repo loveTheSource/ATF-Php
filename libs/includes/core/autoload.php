@@ -25,12 +25,19 @@ class Autoload {
 		if (strpos($class, '\\') !== false) {
 			$parts = explode('\\', $class);
 			$prefix = $parts[count($parts)-2];
+			$prefixMin1 = $parts[count($parts)-3];
 			$className = $parts[count($parts)-1];
 			$file = false;
 
 			switch ($prefix) {
 				case "Core":
 					$file = CORE_PATH . lcfirst($className) . '.php';
+					break;
+					
+				case "Db":
+					if ($prefixMin1 === "Core") {
+						$file = CORE_PATH . "db" . DIRECTORY_SEPARATOR . lcfirst($className) . '.php';
+					}
 					break;
 					
 				case "Helper":
@@ -40,7 +47,7 @@ class Autoload {
 				case "Models":
 					$file = MODELS_PATH . lcfirst($className) . '.php';
 					break;
-					
+
 				case "Controller":
 					if ($className === "BaseModule") {
 						$file = CONTROLLER_PATH . lcfirst($className) . '.php';

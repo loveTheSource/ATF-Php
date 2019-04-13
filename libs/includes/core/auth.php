@@ -67,8 +67,6 @@ class Auth {
 	}
 	/**
 	 * remove redirect on auth
-	 *
-	 * @return null|string
 	 */
 	public function removeRedirectOnAuth() {
 		Core\Request::delParamSession(ProjectConstants::KEY_SESSION_REDIRECT_ON_AUTH);
@@ -81,7 +79,7 @@ class Auth {
 	 * @param string $userLogin
 	 * @param array $groups
 	 */
-	public function setLogin($userId, $userLogin, $groups=null) {
+	public function setLogin($userId, $groups=null) {
 		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_ID, $userId);
 		
 		if (is_array($groups)) {
@@ -145,28 +143,42 @@ class Auth {
 				WHERE login = " . $db->quote($login) . "; ";
 		
 		$res =  $db->query($query);
-		$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\User');
-		
-		if (count($arrayModels) == 1) {
-			$user = $arrayModels[0];
-			if (password_verify($pass, $user->password)) {
-				$this->setLogin($user->id, $login);
-				$groups = $this->setUserGroups();
-				
-				$user->setUserGroups($groups);
-				$this->setLastLogin($user);
-				
-				return true;
+
+		if ($res !== false) {
+			$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\User');
+			
+			if (count($arrayModels) == 1) {
+				$user = $arrayModels[0];
+				if (password_verify($pass, $user->password)) {
+					$this->setLogin($user->id, $login);
+					$groups = $this->setUserGroups();
+					
+					$user->setUserGroups($groups);
+					$this->setLastLogin($user);
+					
+					return true;
+				}
 			}
+		} else {
+			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
 		}
+
 		return false;
 	}
 	
+	/**
+	 * save last login to db
+	 * 
+	 * @param \ATFApp\Models\User $user
+	 */
 	private function setLastLogin(\ATFApp\Models\User $user) {
-		$user->lastLogin = date('Y-m-d H:i:s');
+		$user->last_login = date('Y-m-d H:i:s');
         $user->update(['last_login']);
 	}
 	
+	/**
+	 * fetch user groups and save them to session
+	 */
 	private function setUserGroups() {
 		$userId = $this->getUserId();
 		
@@ -178,18 +190,27 @@ class Auth {
 				WHERE ug.user = " . $db->quote($userId);
 
 		$res = $db->query($query);
-		$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\Group');
+		if ($res !== false) {
+			$arrayModels = $res->fetchALL(\PDO::FETCH_CLASS, 'ATFApp\Models\Group');
 				
-		$groups = [];
-		foreach ($arrayModels AS $group) {
-			$groups[] = $group->id;
+			$groups = [];
+			foreach ($arrayModels AS $group) {
+				$groups[] = $group->id;
+			}
+			Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_GROUPS, $groups);
+			
+			return $arrayModels;	
+		} else {
+			throw new Exceptions\Db(__CLASS__ . '::' . __METHOD__ . ' failed: ' . $query, null, null, $db->errorInfo());
 		}
-		Core\Request::setParamSession(ProjectConstants::KEY_SESSION_USER_GROUPS, $groups);
-		
-		return $arrayModels;
 	}
 	
-	
+	/**
+	 * get password hash
+	 * 
+	 * @param string $password
+	 * @return string
+	 */
 	public function getPasswordHash($password) {
 		return password_hash($password, PASSWORD_DEFAULT);
 	}
