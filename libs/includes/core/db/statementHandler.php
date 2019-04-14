@@ -11,7 +11,7 @@ use ATFApp\Core;
  */
 class StatementHandler {
 	
-	private $dbConnection = 'default';
+	private $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
 	private $useProfiler = false;
 	private $statement = null;
 	private $db = null;
