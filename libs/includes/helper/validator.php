@@ -238,7 +238,6 @@ class Validator {
 		#if (is_float($value) && $value >= 0) {
 			return true;
 		} else {
-			var_dump($value);
 			return false;
 		}
 	}
