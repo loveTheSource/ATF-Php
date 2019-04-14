@@ -29,4 +29,12 @@ abstract class BaseModule {
 		return true;
 	}
 
+	/**
+	 * actions will be performed after the request was fully handled
+	 * 
+	 * @return boolean
+	 */
+	public function postActions() {
+		// define post actions here or in the extending class
+	}
 }
