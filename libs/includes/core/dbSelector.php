@@ -10,7 +10,7 @@ use ATFApp\Core;
 
 class DbSelector {
 	
-	private $dbConnection = 'default';
+	private $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
 	private $columns = [];
 	private $table = null;
 	private $wheres = [];

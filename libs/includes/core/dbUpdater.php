@@ -10,7 +10,7 @@ use ATFApp\Core;
 
 class DbUpdater {
 	
-	private $dbConnection = 'default';
+	private $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
 	private $table = null;
 	private $updateValues = [];
 	private $wheres = [];

@@ -2,11 +2,12 @@
 
 namespace ATFApp\Models;
 
+use ATFApp\ProjectConstants;
+
 require_once 'simpleModel.php';
 
 class User extends SimpleModel {
-	
-	// protected $dbConnection = 'default';
+	// protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
 	protected $table = "users";
 	protected $tablePrimaryKeys = ['id'];
 	// table columns
