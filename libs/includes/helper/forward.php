@@ -25,24 +25,22 @@ class Forward {
 		if (is_null($route)) $route = ProjectConstants::ROUTE_DEFAULT;
 		
 		$router = Core\Includer::getRouter();
-		if (!$router->checkRoute($route)) {
-			throw new Exceptions\Custom("forward - invalid routing: " . $route);
+		$routeCheck = $router->checkRoute($route, true);
+		if ($routeCheck === false) {
+			throw new Exceptions\Custom("forward - invalid route: " . $route);
 		} else {
 			$counter = $this->countForward();
 			$this->setForwarding();
 			
 			if ($counter > BasicFunctions::getConfig('project_config', 'forwarding_limit')) {
-				throw new Exceptions\Custom("forward limit reached: " . $counter);
+				throw new Exceptions\Custom("forward limit reached: " . $counter . ' - can be raised in project_config');
 			} else {
-				$this->performForward($route, $router->getRouteConfig($route));
+				$this->performForward($route, $routeCheck);
 			}
 		}
 	}
 	
 	private function performForward($route, $conf) {
-		BasicFunctions::setRoute($route);
-		BasicFunctions::setModule($conf['module']);
-		
 		// renew document
 		$this->renewDocument();
 		

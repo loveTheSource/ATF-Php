@@ -22,20 +22,21 @@ abstract class BaseController {
 	 * @return boolean
 	 */
 	public function canAccess() {
-		$route = BasicFunctions::getRoute();
-		
 		$router = Core\Includer::getRouter();
-		$routeConfig = $router->getRouteConfig($route);
+		$routeConfig = $router->getCurrentRouteConfig();
 
 		return $this->canAccessRoute($routeConfig);
 	}
 	
 	/**
 	 * check if route is accessible
+	 * 
+	 * @param array $routeConfig
+	 * @return boolean
 	 */
-	private function canAccessRoute($routeConfig) {
+	private function canAccessRoute(array $routeConfig) {
 		// parent route
-		$parentRoute = $routeConfig['parentroute'];
+		$routeParents = $routeConfig['parents'];
 
 		// check if authorization is required
 		if (array_key_exists('access', $routeConfig)) {
@@ -46,7 +47,7 @@ abstract class BaseController {
 				return false;
 			} elseif (!array_key_exists('groups', $routeConfig['access']) && !array_key_exists('users', $routeConfig['access'])) {
 				// no users or groups defined - being logged in is enough
-				return $this->canAccessParentRoute($parentRoute);
+				return $this->canAccessParentRoute($routeParents);
 			}
 			
 			// check for group restrictions
@@ -65,7 +66,7 @@ abstract class BaseController {
 				}
 				
 				if ($groupGranted) {
-					return $this->canAccessParentRoute($parentRoute);
+					return $this->canAccessParentRoute($routeParents);
 				}
 			}
 			
@@ -84,7 +85,7 @@ abstract class BaseController {
 						}
 					}
 					if ($userGranted) {
-						return $this->canAccessParentRoute($parentRoute);
+						return $this->canAccessParentRoute($routeParents);
 					}
 				}
 			}
@@ -92,18 +93,27 @@ abstract class BaseController {
 			return false;
 		} else {
 			// no authorization required for route
-			return $this->canAccessParentRoute($parentRoute);
+			return $this->canAccessParentRoute($routeParents);
 		}
 		return false;
 	}
 
-	private function canAccessParentRoute($parentRoute) {
-		if (empty($parentRoute)) {
+	/**
+	 * check if access to parent route is granted
+	 * 
+	 * @param array $routeParents parents route as array
+	 * @return boolean
+	 */
+	private function canAccessParentRoute(array $routeParents) {
+		if (empty($routeParents)) {
 			return true;
 		} else {
+			$parentRouteString = implode('', $routeParents);
 			$router = Core\Includer::getRouter();
-			$parentRouteConfig = $router->getRouteConfig($parentRoute);
-
+			$parentRouteConfig = $router->checkRoute($parentRouteString);
+			if ($parentRouteConfig === false) {
+				throw new Exceptions\Custom("faild to check parent access. parent route not valid. how is that even possible?", null, null, $routeParents);
+			}
 			return $this->canAccessRoute($parentRouteConfig);
 		}
 	}

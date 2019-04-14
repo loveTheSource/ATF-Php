@@ -67,7 +67,7 @@ class TemplateFunctions {
 	 * @return string
 	 */
 	public function getRoute() {
-		return BasicFunctions::getRoute()();
+		return BasicFunctions::getRoute();
 	}
 	
 	/**

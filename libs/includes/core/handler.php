@@ -21,7 +21,7 @@ class Handler {
 	private $controllerObj = null;
 	
 	public function __construct() { 
-		$this->controllerObj = Factory::getController(BasicFunctions::getRoute());
+		$this->controllerObj = Factory::getController();
 
 		if (BasicFunctions::getModule()) {
 			$this->moduleObj = Factory::getModule(BasicFunctions::getModule());
@@ -34,7 +34,7 @@ class Handler {
 	public function handle() {
 		try {
 			$router = Core\Includer::getRouter();
-			$routeConfig = $router->getRouteConfig(BasicFunctions::getRoute());
+			$routeConfig = $router->getCurrentRouteConfig();
 
 			// action content (html)
 			$actionHtml = $this->getContentHtml($routeConfig['action']);
@@ -59,6 +59,10 @@ class Handler {
 	 * called after the request is done
 	 */
 	public function postActions() {
+		if ($this->moduleObj) {
+			$this->moduleObj->postActions();
+		}
+
 		if (BasicFunctions::useProfiler()) {
 			Helper\Profiler::stopProfiler();
 			echo Helper\Profiler::getProfileHtml();
@@ -73,7 +77,7 @@ class Handler {
 			$this->printDebugInfos(false);
 		}		
 			
-		exit(); // we're done
+		exit(); // we're finally done. hope it didnt take too long ;)
 	}
 	
 	/**
@@ -208,6 +212,20 @@ class Handler {
 				echo '<td>' . BasicFunctions::getRoute() . '</td>';
 			echo '</tr>';
 			
+			$routeParams = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS);
+			if (is_array($routeParams)) {
+				echo '<tr>';
+					echo '<th align="left" valign="top">Route Params</th>';
+					echo '<td>';
+					foreach ($routeParams as $key => $value) {
+						echo '<div class="debuginfos_row">';
+							echo $key . ': ' . $value;
+						echo '</div>';
+					}
+					echo '</td>';
+				echo '</tr>';
+			}
+
 			echo '<tr>';
 				echo '<th align="left">Memory</th>';
 				echo '<td>' . Helper\Format::formatBytes(memory_get_usage()) . '</td>';

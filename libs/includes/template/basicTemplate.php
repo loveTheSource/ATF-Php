@@ -122,7 +122,7 @@ abstract class BasicTemplate {
      */
     protected function getActionTemplate() {
 			$router = Core\Includer::getRouter();
-			$routeConf = $router->getRouteConfig(BasicFunctions::getRoute());
+			$routeConf = $router->getCurrentRouteConfig();
 			$templateFile = $routeConf['template'];
 			$templateFolder = $routeConf['module'];
 				
@@ -140,7 +140,7 @@ abstract class BasicTemplate {
     protected function getModuleTemplate() {
 			$template = Core\Factory::getTemplateObj();
 			$router = Core\Includer::getRouter();
-			$routeConf = $router->getRouteConfig(BasicFunctions::getRoute());
+			$routeConf = $router->getCurrentRouteConfig();
 			$templateFile = $routeConf['module'] . 'Module' . $template->templateExtension;
 			$templateFolder = $routeConf['module'];
 				

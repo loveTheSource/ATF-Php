@@ -118,9 +118,12 @@ abstract class ConstantsDefaults {
 	const KEY_GLOBAL_MODULE = "global_module";
 	
 	// globals key forwarding status (boolean)
-	const KEY_GLOBAL_FORWARDING = "forwarding_active";
+	const KEY_GLOBAL_FORWARDING = "global_forwarding_active";
 	
 	// globals key count forwardings
-	const KEY_GLOBAL_FORWARDING_COUNT = "forwards_count";
+	const KEY_GLOBAL_FORWARDING_COUNT = "global_forwards_count";
+
+	// globals key for the route params
+	const KEY_GLOBAL_ROUTE_PARAMS = "global_route_params";
 	
 }

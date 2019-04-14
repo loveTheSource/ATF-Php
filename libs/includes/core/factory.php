@@ -13,24 +13,19 @@ class Factory extends Includer {
 	/**
 	 * get a controller object
 	 * 
-	 * @param string $route
 	 * @throws CustomException
 	 * @return \ATFApp\Controller\BaseController (extended)
 	 */
-	public static function getController($route)  {
+	public static function getController()  {
 		try {
 			$router = Includer::getRouter();
-			if ($router->checkRoute($route)) {
-				$routeConfig = $router->getRouteConfig($route);
-				$module = (array_key_exists('module', $routeConfig)) ? $routeConfig['module'] : null;
-				$file = $router->getControllerFile($routeConfig['controller'], $module);
-				$class = $router->getControllerNamespace($module) . $routeConfig['controller'];
-				require_once $file;
-				$obj = new $class();
-				return $obj;
-			} else {
-				throw new Exceptions\Custom("invalid route: " . $route);
-			}
+			$routeConfig = $router->getCurrentRouteConfig();
+			$module = (array_key_exists('module', $routeConfig)) ? $routeConfig['module'] : null;
+			$file = $router->getControllerFile($routeConfig['controller'], $module);
+			$class = $router->getControllerNamespace($module) . $routeConfig['controller'];
+			require_once $file;
+			$obj = new $class();
+			return $obj;
 		} catch (\Exception $e) {
 			throw $e;
 		}
@@ -54,7 +49,7 @@ class Factory extends Includer {
 				$obj = new $class();
 				return $obj;
 			}
-	} catch (\Exception $e) {
+		} catch (\Exception $e) {
 			throw $e;
 		}
 	}

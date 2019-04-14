@@ -2,6 +2,8 @@
 
 namespace ATFApp\Core;
 
+use ATFApp\ProjectConstants;
+
 /**
  * Core\Request
  * 
@@ -262,6 +264,24 @@ class Request {
 		}
 	}
 	
+	public static function setParamRoute($key, $value) {
+		if (!array_key_exists(ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS, $GLOBALS)) {
+			$GLOBALS[ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS] = [];
+		}
+		$GLOBALS[ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS][$key] = filter_var($value, FILTER_SANITIZE_STRING);
+	}
+	public static function getParamRoute($key) {
+		if (array_key_exists(ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS, $GLOBALS)) {
+			if (isset($GLOBALS[ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS][$key])) {
+				return $GLOBALS[ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS][$key];
+			}
+		}
+		return null;
+	}
+	public static function deleteParamsRoute() {
+		$GLOBALS[ProjectConstants::KEY_GLOBAL_ROUTE_PARAMS] = [];
+	}
+
 	/**
 	 * set user cookie
 	 *
