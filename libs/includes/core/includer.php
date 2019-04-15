@@ -157,7 +157,7 @@ abstract class Includer {
 	 * get pdo db object
 	 * 
 	 * @param string $connectionId
-	 * @return \ATFApp\Core\PdoDb
+	 * @return \ATFApp\Core\Db\PdoDb
 	 */
 	public static function getDbObj($connectionId=null) {
 		if (is_null($connectionId)) $connectionId = ProjectConstants::DB_DEFAULT_CONNECTION;
