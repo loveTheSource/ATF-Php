@@ -11,7 +11,7 @@ require_once '../config/base/main_config.default.php';
 
 // error handling
 require_once EXCEPTIONS_PATH . 'ExceptionHandler.php';
-ATFApp\Exceptions\ExceptionHandler::setEmailRecipients(unserialize(ADMIN_EMAILS));
+Exceptions\ExceptionHandler::setEmailRecipients(unserialize(ADMIN_EMAILS));
 
 // main project
 require_once LIBS_PATH . 'project.php';
@@ -26,7 +26,7 @@ try {
 	$project->run();
 	exit();
 } catch (\Exception $e) {
-	ATFApp\Exceptions\ExceptionHandler::handle($e);
+	Exceptions\ExceptionHandler::handle($e);
 	
 	// display error message in live environment
 	if (defined("ENVIRONMENT") && ENVIRONMENT == "live") {
