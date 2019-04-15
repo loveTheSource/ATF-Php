@@ -12,8 +12,10 @@ use ATFApp\Core as Core;
 class TemplateHelperEnvironment {
 	
 	public function getHelper() {
-		$template = Core\Factory::getTemplateObj();
-		return $template->renderHelper('environment');
+		if (ProjectConstants::ENVIRONMENT_BADGE === true) {
+			$template = Core\Factory::getTemplateObj();
+			return $template->renderHelper('environment');	
+		}
 	}
 	
 }

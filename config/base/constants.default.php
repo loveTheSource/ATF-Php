@@ -40,7 +40,8 @@ abstract class ConstantsDefaults {
 	// default database connection id (db_config.php)
 	const DB_DEFAULT_CONNECTION = "default";
 	
-	
+	// show environment in badge on page top
+	const ENVIRONMENT_BADGE = true;
 	
 	# +++++++++++++++++++ special routes +++++++++++++++++++
 	
