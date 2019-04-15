@@ -15,7 +15,8 @@ class SqlLog extends SimpleModel {
 		'remote_addr',
 		'query',
 		'method',
-		'timestamp'
+		'timestamp',
+		'params'
 	];
 	protected $tableColumnsProtected = ['timestamp'];
     
