@@ -13,6 +13,14 @@ class PdoProfiler extends PdoDb {
 	private $decimals = 6;
 	private $connectionsCounter = 0;
 	
+	/**
+	 * constructor
+	 * 
+	 * @param string $dsn
+	 * @param string $username
+	 * @param string $passwd
+	 * @param array $options
+	 */
 	public function __construct($dsn, $username, $passwd, $options = null) {
 		if (BasicFunctions::useProfiler()) {
 			$this->useProfiler = true;
@@ -29,14 +37,21 @@ class PdoProfiler extends PdoDb {
 		$this->profiler[$statement][] = $executionTime;
 	}
 
-	public function prepare($statement, $driver_options=[]) {
+	/**
+	 * prepare statement
+	 * 
+	 * @param string $statement
+	 * @param array $options
+	 * @return \PDOStatement
+	 */
+	public function prepare($statement, $options=[]) {
 		$profilerInUse = false;
 		if ($this->useProfiler) {
 			$profilerInUse = true;
 			$before = microtime(true);
 		}
 		
-		$result = parent::prepare($statement, $driver_options);
+		$result = parent::prepare($statement, $options);
 		
 		if ($profilerInUse) {
 			$executionTime = bcsub(microtime(true), $before, $this->decimals);
@@ -52,9 +67,9 @@ class PdoProfiler extends PdoDb {
 	/**
 	 * perform db query
 	 * 
-	 * @see \ATFApp\Core\PdoDb::query()
+	 * @see \ATFApp\Core\Db\PdoDb::query()
 	 * @param string $statement (sql)
-	 * @param boolean $ignoreCache
+	 * @return \PDOStatement|false
 	 */
 	public function query($statement) {
 		$profilerInUse = false;
@@ -76,6 +91,12 @@ class PdoProfiler extends PdoDb {
 		return $result;
 	}
 	
+	/**
+	 * exec
+
+	 * @param string $statement (sql)
+	 * @return int|false
+	 */
 	public function exec($statement) {
 		$profilerInUse = false;
 		if ($this->useProfiler) {

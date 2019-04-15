@@ -15,6 +15,7 @@ class StatementHandler {
 	private $useProfiler = false;
 	private $statement = null;
 	private $db = null;
+	private $query = null;
 
 	/**
 	 * constructor
@@ -31,9 +32,12 @@ class StatementHandler {
 			$this->dbConnection = $dbConnection;
 		}
 		
-		$this->db = Core\Factory::getDbObj($this->dbConnection);
-		$statement = $this->db->prepare($query);
+		$this->query = $query;
 
+		// get db obj
+		$this->db = Core\Factory::getDbObj($this->dbConnection);
+		// get prepared statement
+		$statement = $this->db->prepare($query);
 		$this->statement = $statement;
 	}
 
@@ -47,6 +51,7 @@ class StatementHandler {
 	 * @param string $return select return value (cols / rows)
 	 */
 	public function execute($params=[], $return='rows') {
+		$this->db->logQuery($this->query, 'execute', $params);
 		$profilerInUse = false;
 		if ($this->useProfiler) {
 			$profilerInUse = true;
