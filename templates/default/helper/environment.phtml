@@ -1,0 +1,5 @@
+<?php if (!$obj->isProduction()) { ?>
+    <div class="environment env_<?php echo $obj->getEnv(); ?>">
+        <?php echo $obj->getProjectName() . ': ' . $obj->getEnv(); ?>
+    </div>
+<?php } ?> 

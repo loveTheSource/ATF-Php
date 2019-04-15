@@ -62,6 +62,15 @@ class TemplateFunctions {
 	}
 
 	/**
+	 * get project name
+	 * 
+	 * @return string
+	 */
+	public function getProjectName() {
+		return ProjectConstants::PROJECT_NAME;
+	}
+
+	/**
 	 * return current route
 	 * 
 	 * @return string
@@ -85,7 +94,7 @@ class TemplateFunctions {
 	 * @return boolean
 	 */
 	public function isProduction() {
-		return BasicFunctions::isProduction()();
+		return BasicFunctions::isProduction();
 	}
 	
 	/**

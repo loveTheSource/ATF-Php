@@ -2,6 +2,8 @@
 
 body {
 	font-size: 12px;
+	margin: 0px;
+	padding: 0px;
 }
 
 div.system_messages {
@@ -27,5 +29,20 @@ div.system_messages div.info {
 	padding-left: 3px;
 }
 
+div.environment {
+	border: 1px solid #666666;
+	padding: 3px 5px;
+	margin: 2px;
+}
+div.env_debug {
+	background-color: #9393ff;;
+	border-color: #0000b4;
+}
+div.env_staging {
+	background-color: #ffd993;
+	border-color: #c58000;
+}
 
-
+div.container {
+	padding: 10px;
+}

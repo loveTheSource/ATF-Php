@@ -27,29 +27,33 @@
 	</head>
 	
 	<body>
-	<div class="container">
-		<?php echo $obj->getHelper('messages');?>
-		<?php echo $data['content_html'];?>
-	</div>	
+
+		<?php echo $obj->getHelper('environment');?>
+
+		<div class="container">
+			<?php echo $obj->getHelper('messages');?>
+			<?php echo $data['content_html'];?>
+		</div>	
 			
 	</body>
+
 	<?php if ($obj->document->hasJsModules()) { ?>
-	<script type="text/javascript">
-	window.addEventListener('load', function () {
-		atfJs = new Project({
-			object_name: 'atfJs',
-			project_url: '<?php echo $obj->getWeblink(); ?>',
-			current_url: '<?php echo $obj->getCurrentLink(); ?>',
-			modules: [ <?php 
-			$files = 0;
-			foreach($obj->document->getJsModules() AS $jsmod) { 
-				if ($files != 0) echo ", ";
-				echo "'".$jsmod['module']."'";
-				$files++; 
-			}
-			?> ]
+		<script type="text/javascript">
+		window.addEventListener('load', function () {
+			atfJs = new Project({
+				object_name: 'atfJs',
+				project_url: '<?php echo $obj->getWeblink(); ?>',
+				current_url: '<?php echo $obj->getCurrentLink(); ?>',
+				modules: [ <?php 
+				$files = 0;
+				foreach($obj->document->getJsModules() AS $jsmod) { 
+					if ($files != 0) echo ", ";
+					echo "'".$jsmod['module']."'";
+					$files++; 
+				}
+				?> ]
+			});
 		});
-	});
-	</script>
+		</script>
 	<?php } ?>
 </html>
