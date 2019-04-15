@@ -12,7 +12,7 @@ use ATFApp\Models as Model;
  * keep that in mind when using the consstructor
  */
 class PdoDb extends \PDO {
-	private $statementsToLog = ['insert ', 'update ', 'delete ', 'drop ta', 'truncat'];
+	private $statementsToLog = ['inser', 'updat', 'delet', 'drop ', 'trunc'];
 	
 	/**
 	 * prepare query for prepared statement
@@ -60,7 +60,7 @@ class PdoDb extends \PDO {
 	 */
 	public function logQuery($query, $method=null, $params=[]) {
 		if (ProjectConstants::DB_LOGGING === true) {
-			$part = strtolower(substr(trim($query), 0, 7));
+			$part = strtolower(substr(trim($query), 0, 5));
 			if (in_array($part, $this->statementsToLog)) {
 				// TODO ALWAYS REMEMBER: whenever you think about renaming the sql_log table... adjust the next line as well!!!
 				// otherwise the code will crash because it will 'recursively' write a log for a log for a log... ;)
