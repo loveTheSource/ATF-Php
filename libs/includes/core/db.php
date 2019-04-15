@@ -11,7 +11,7 @@ use ATFApp\Core;
 /**
  * Core Db
  * manages db PDO connections
- * creates ATFApp\Core\PdoDb objects
+ * creates ATFApp\Core\Db\PdoDb objects
  * 
  * the connections are saved in a global array to prevent
  * multiple connections to a single connection id (host/db)
@@ -42,7 +42,7 @@ class Db {
 	 * 
 	 * @param string $connectionId
 	 * @throws DbException
-	 * @return \ATFApp\Core\PdoDb
+	 * @return \ATFApp\Core\Db\PdoDb
 	 */
 	private static function createConnection($connectionId) {
 		try {
@@ -65,6 +65,8 @@ class Db {
 					$dsn = 'mysql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
 					$options = [
 						\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+						\PDO::ATTR_EMULATE_PREPARES => false,
+						\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
 					];
 					if (BasicFunctions::useProfiler()) {
 						// PdoProfiler: PdoDb with profiler
@@ -76,12 +78,16 @@ class Db {
 					
 				case 'pgsql':
 					$dsn = 'pgsql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
-					$options = ";options='-c client_encoding=utf8'";
+					$optionsStr = ";options='-c client_encoding=utf8'";
+					$options = [
+						\PDO::ATTR_EMULATE_PREPARES => false,
+						\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+					];
 					if (BasicFunctions::useProfiler()) {
 						// PdoProfiler: PdoDb with profiler
-						$dbh = new Core\Db\PdoProfiler($dsn . $options, $connConfig['user'], $connConfig['pass']);
+						$dbh = new Core\Db\PdoProfiler($dsn . $optionsStr, $connConfig['user'], $connConfig['pass'], $options);
 					} else {
-						$dbh = new Core\Db\PdoDb($dsn . $options, $connConfig['user'], $connConfig['pass']);
+						$dbh = new Core\Db\PdoDb($dsn . $optionsStr, $connConfig['user'], $connConfig['pass'], $options);
 					}
 					break;
 					
