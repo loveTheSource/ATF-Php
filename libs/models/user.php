@@ -30,11 +30,6 @@ class User extends SimpleModel {
 	
 	protected $userInGroups = [];
 	
-	public function updateAll() {
-		// save model data
-		parent::updateAll();
-	}
-
 	public function setUserGroups($groups) {
 		$this->userInGroups = $groups;
 	}

@@ -19,23 +19,16 @@ abstract class SimpleModel extends BaseModel {
 	public function __construct() {	}
 	
 	/**
-	 * update database entry (all possible columns)
-	 * 
-	 * @throws DbException
-	 * @return boolean
-	 */
-	public function updateAll() {
-		return $this->update($this->getUpdateColumns());
-	}
-
-	/**
 	 * update database entry (only given columns)
 	 * 
 	 * @param array $columns
 	 * @throws DbException
 	 * @return boolean
 	 */
-	public function update(Array $columns) {
+	public function update(Array $columns=[]) {
+		if (empty($columns)) {
+			$columns = $this->getUpdateColumns();
+		}
 		$updateCols = $this->getUpdateColumns();
 		$table = $this->getTable();
 		
