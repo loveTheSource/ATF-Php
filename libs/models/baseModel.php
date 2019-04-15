@@ -86,7 +86,7 @@ abstract class BaseModel {
 	/**
 	 * get pdo db object
 	 *
-	 * @return \ATFApp\Core\PdoDb
+	 * @return \ATFApp\Core\Db\PdoDb
 	 */
 	public function getDb() {
 		return Core\Factory::getDbObj($this->dbConnection);
