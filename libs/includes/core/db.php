@@ -13,8 +13,8 @@ use ATFApp\Core;
  * manages db PDO connections
  * creates ATFApp\Core\Db\PdoDb objects
  * 
- * the connections are saved in a global array to prevent
- * multiple connections to a single connection id (host/db)
+ * the connections are saved in a class var and returned when needed
+ * to prevent multiple connections to a single connection id (host/db)
  *
  * refer to db_config.php for connection(id)s
  */
@@ -50,16 +50,8 @@ class Db {
 			$connConfig = BasicFunctions::getConfig('db_config', $connectionId);
 				
 			// check config
-			if (is_null($connConfig) || !is_array($connConfig)) throw new Exceptions\Db("invalid connection id - not in config: " . $connectionId);
-			if (!isset($connConfig['type'])) throw new Exceptions\Db("invalid connection config - type missing: " . $connectionId);
-			if (!isset($connConfig['host'])) throw new Exceptions\Db("invalid connection config - host missing: " . $connectionId);
-			if (!isset($connConfig['db'])) throw new Exceptions\Db("invalid connection config - db missing: " . $connectionId);
-			if ($connConfig['type'] != 'sqlite') {
-				// sqlite needs neither user nor password
-				if (!isset($connConfig['user'])) throw new Exceptions\Db("invalid connection config - user missing: " . $connectionId);
-				if (!isset($connConfig['pass'])) throw new Exceptions\Db("invalid connection config - pass missing: " . $connectionId);
-			}
-			
+			self::checkConfig($connectionId, $connConfig);
+
 			switch ($connConfig['type']) {
 				case 'mysql':
 					$dsn = 'mysql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
@@ -108,4 +100,22 @@ class Db {
 		}
 	}
 
+
+	/**
+	 * check connection config
+	 * 
+	 * @param string $connectionId
+	 * @param array $config
+	 */
+	private static function checkConfig($connectionId, array $config) {
+		if (is_null($config) || !is_array($config)) throw new Exceptions\Db("invalid connection id - not in config: " . $connectionId);
+		if (!isset($config['type'])) throw new Exceptions\Db("invalid connection config - type missing: " . $connectionId);
+		if (!isset($config['host'])) throw new Exceptions\Db("invalid connection config - host missing: " . $connectionId);
+		if (!isset($config['db'])) throw new Exceptions\Db("invalid connection config - db missing: " . $connectionId);
+		if ($config['type'] !== 'sqlite') {
+			// sqlite needs neither user nor password
+			if (!isset($config['user'])) throw new Exceptions\Db("invalid connection config - user missing: " . $connectionId);
+			if (!isset($config['pass'])) throw new Exceptions\Db("invalid connection config - pass missing: " . $connectionId);
+		}
+	}
 }
