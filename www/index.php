@@ -4,10 +4,14 @@ namespace ATFApp;
 
 use ATFApp\Exceptions as Exceptions;
 
+// change directory
+// chdir ('../');
+
+$cwd = realpath(dirname( getcwd() )) . DIRECTORY_SEPARATOR;
 // main config file
-require_once '../config/base/main_config.php';
+require_once $cwd . 'config/base/main_config.php';
 // fallback version
-require_once '../config/base/main_config.default.php';
+require_once $cwd . 'config/base/main_config.default.php';
 
 // error handling
 require_once EXCEPTIONS_PATH . 'ExceptionHandler.php';
@@ -17,9 +21,6 @@ require_once EXCEPTIONS_PATH . 'ExceptionHandler.php';
 require_once LIBS_PATH . 'project.php';
 
 try {
-	// change directory
-	chdir ('../');
-	
 	// create project object and run
 	$project = new ATFProject();
 	$project->init();
