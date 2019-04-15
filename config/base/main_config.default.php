@@ -7,10 +7,10 @@
 
 # application environment
 if (!defined("ENVIRONMENT")) {
-	if (isset($_SERVER['ENVIRONMENT']) && in_array($_SERVER['ENVIRONMENT'], ['debug', 'staging', 'live'])) {
+	if (isset($_SERVER['ENVIRONMENT']) && in_array($_SERVER['ENVIRONMENT'], ['debug', 'staging', 'production'])) {
 		define("ENVIRONMENT", $_SERVER['ENVIRONMENT']);
 	} else {
-		define("ENVIRONMENT", 'live'); // default if webserver/vhost has no environment assigned
+		define("ENVIRONMENT", 'production'); // default if webserver/vhost has no environment assigned
 	}
 }
 

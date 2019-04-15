@@ -29,8 +29,8 @@ try {
 } catch (\Exception $e) {
 	Exceptions\ExceptionHandler::handle($e);
 	
-	// display error message in live environment
-	if (defined("ENVIRONMENT") && ENVIRONMENT == "live") {
+	// display error message in production environment
+	if (defined("ENVIRONMENT") && ENVIRONMENT == "production") {
 		// output in case of error
 		$errorFile = "error.html";
 		if (!headers_sent()) {

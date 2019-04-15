@@ -110,7 +110,7 @@ class TemplateSmarty extends BasicTemplate {
 			// configure smarty
 			$use_cache = false;  //  TODO - for using cache.. cache ids have to be defined... ???? test it!!
 			$smartyObj->caching = $use_cache;
-			$smartyObj->debugging = !BasicFunctions::isLive();
+			$smartyObj->debugging = !BasicFunctions::isProduction();
 			
 			// assign data
 			$data = $this->getTemplateData();

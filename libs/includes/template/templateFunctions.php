@@ -71,6 +71,24 @@ class TemplateFunctions {
 	}
 	
 	/**
+	 * return app env
+	 * 
+	 * @return string
+	 */
+	public function getEnv() {
+		return BasicFunctions::getEnv();
+	}
+	
+	/**
+	 * return is production env
+	 * 
+	 * @return boolean
+	 */
+	public function isProduction() {
+		return BasicFunctions::isProduction()();
+	}
+	
+	/**
 	 * get the current link
 	 * 
 	 * @param string $absolute
@@ -112,7 +130,7 @@ class TemplateFunctions {
 			$helperObj = new $helperClass();
 			return $helperObj->getHelper($data);
 		} catch (\Exception $e) {
-			if (!BasicFunctions::isLive()) {
+			if (!BasicFunctions::isProduction()) {
 				throw $e;
 			}
 			return "";

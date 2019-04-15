@@ -11,7 +11,7 @@ PHP 5.4+ running on a Webserver (e.g. Apache2) with mod_rewrite enabled
 
     # a2enmod rewrite  
     # /etc/init.d/apache2 reload
-A Vhost with an environmental variable 'ENVIRONMENT' set to either 'debug', 'staging' or 'live'. If nothing is defined, the environments defaults to 'debug'  
+A Vhost with an environmental variable 'ENVIRONMENT' set to either 'debug', 'staging' or 'production'. If nothing is defined, the environments defaults to 'debug'  
 
     SetEnv ENVIRONMENT "debug"
 

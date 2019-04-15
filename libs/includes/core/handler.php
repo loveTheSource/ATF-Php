@@ -73,7 +73,7 @@ class Handler {
 			}
 		}
 		
-		if (!BasicFunctions::isLive()) {
+		if (!BasicFunctions::isProduction()) {
 			$this->printDebugInfos(false);
 		}		
 			

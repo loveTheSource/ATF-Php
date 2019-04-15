@@ -11,7 +11,7 @@ require_once 'DbException.php';
 /**
  * ExceptionHandler
  * 
- * requires ENVIRONMENT constant to be defined (values: debug | staging | live)
+ * requires ENVIRONMENT constant to be defined (values: debug | staging | production)
  * used as singleton to make sure everything has to be defined only once (e.g. e-mail)
  * 
  * @author cre8.info
@@ -53,7 +53,7 @@ class ExceptionHandler {
 				#$handler->logToFile($e);
 				break;
 				
-			case "live":
+			case "production":
 				#$handler->logToFile($e);
 				$handler->send($e);
 				break;

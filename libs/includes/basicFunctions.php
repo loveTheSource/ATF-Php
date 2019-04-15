@@ -58,24 +58,28 @@ class BasicFunctions {
 	}
 		
 	/**
-	 * check if environment is live
+	 * check if environment is production
 	 * 
 	 * @return boolean
 	 */
-	public static function isLive() {
+	public static function isProduction() {
+		return self::getEnv() == "production";
+	}
+	
+	public static function getEnv() {
 		if (defined('ENVIRONMENT')) {
-			return ENVIRONMENT == "live";
+			return ENVIRONMENT;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * whether the profiler should be used
 	 * 
 	 * @return boolean
 	 */
 	public static function useProfiler() {
-		return (ProjectConstants::PROFILER_ENABLED === true && !self::isLive());
+		return (ProjectConstants::PROFILER_ENABLED === true && !self::isProduction());
 	}
 	
 	# ++++++++++++++++++++++ language / skin ++++++++++++++++++++++
