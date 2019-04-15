@@ -24,7 +24,7 @@ class ExceptionHandler {
 	private static $recipients = []; 					// array e-mail recipients
 	private static $instance = null;
 	
-	public $appEnvironment = "live";  // default environment (if nothing else defined)
+	public $appEnvironment = "production";  // default environment (if nothing else defined)
 	
 	private function __construct() {
 		if (defined('ENVIRONMENT')) {
@@ -243,7 +243,7 @@ set_error_handler("ATFApp\Exceptions\customErrorHandling");
 
 
 // fatal errors
-function customShutdown() {
+function customShutdownHandler() {
 	$error = error_get_last();
 	# check for fatal error
 	#if($error && is_array($error) && ($error['type'] === E_ERROR)) {
@@ -256,7 +256,7 @@ function customShutdown() {
 	exit();
 }
 // set shutdown function
-register_shutdown_function('ATFApp\Exceptions\customShutdown');
+register_shutdown_function("ATFApp\Exceptions\customShutdownHandler");
 
 
 // set php error level
