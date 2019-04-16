@@ -45,7 +45,7 @@ class Handler {
 			$template = Factory::getTemplateObj();
 			$template->setData('content_html', $contentHtml);
 			$template->setData('project_config', BasicFunctions::getConfig('project'));
-			$templateFile = $template->getTemplatePath() . "index" . $template->templateExtension;
+			$templateFile = $template->getTemplatePath() . "layout" . $template->templateExtension;
 			$html = $template->renderFile($templateFile);
 	
 			$response = Includer::getResponseObj();
