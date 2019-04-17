@@ -79,7 +79,10 @@ class StatementHandler {
 	}
 
 	public function fetchAll($fetchStyle=null, $class=null) {
-		return $this->statement->fetchAll($fetchStyle, $class);
+		if (!is_null($fetchStyle)) {
+			return $this->statement->fetchAll($fetchStyle, $class);
+		}
+		return $this->statement->fetchAll();
 	}
 
 

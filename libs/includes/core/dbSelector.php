@@ -131,12 +131,11 @@ class DbSelector {
 		$statementData = $this->createQuery();
 		$query = $statementData['query'];
 		$params = $statementData['params'];
-		
+
 		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
 
 		$res = $statementHandler->execute($params);
-		
-		if ($res !== false) {
+		if ($res !== false && $res >= 1) {
 			switch ($fetchType) {
 				case "class":
 					$result = $statementHandler->fetchAll(\PDO::FETCH_CLASS, $class);
@@ -145,7 +144,7 @@ class DbSelector {
 				case "array":
 				default:
 					$result = $statementHandler->fetchAll();
-			}
+				}
 			
 			return $result;
 		}
