@@ -22,8 +22,9 @@ class Form extends FormRenderer {
 	# html5 specific settings for the complete form
 	private $autocomplete = "On";
 	private $novalidate = false;
-	
-	protected $formElements = [];			// array of form elements
+
+	protected $formErrors = [];					// form errors
+	protected $formElements = [];				// array of form elements
 	
 	private $formOnSubmit = null;				// javascript event handler on form submit
 	private $formFocus = null;					// form element to set the focus to
@@ -45,6 +46,27 @@ class Form extends FormRenderer {
 		if (!is_null($formCssClass)) $this->formClass = $formCssClass;
 	}
 	
+	// form errors
+	/**
+	 * add form errors as array
+	 * 
+	 * @param array $errorFields
+	 */
+	public function addFormErrors(array $errorFields) {
+		foreach($errorFields as $field) {
+			$this->addFormError($field);
+		}
+	}
+	/**
+	 * add form error
+	 * 
+	 * @param string $field
+	 */
+	public function addFormError($field) {
+		$this->formErrors[] = $field;
+	}
+
+
 	# +++++++++++++++++++ add form elements +++++++++++++++++++
 	
 	/**

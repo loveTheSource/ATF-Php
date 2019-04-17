@@ -28,7 +28,7 @@ abstract class FormRenderer {
 		// main form tag
 		$formHtml = '<form name="' . $this->getFormName() .'"';
 		$formHtml .= ' id="' . $this->getFormId() .'"';
-		$formHtml .= ' class="default_formhelper ' . $this->getFormClass() . '"'; 
+		$formHtml .= ' class="form-default form-gen ' . $this->getFormClass() . '"'; 
 		$formHtml .= ' action="' . $this->getAction() . '"';
 		$formHtml .= ' method="' . $this->getMethod() . '"';
 		$formHtml .= ' enctype="' . $this->getEnctype() . '"';
@@ -67,9 +67,10 @@ abstract class FormRenderer {
 					$formHtml .= $rowHtml['element'];
 				} else {
 					$requiredClass = (isset($data['required']) && $data['required'] == true) ? "required" : '';
-						
+					$errClass = $this->getErrorClass($elemName);
+
 					// row div
-					$formHtml .= '<div class="form_row form_row_' . $elemName . ' ' . $requiredClass . '">';
+					$formHtml .= '<div class="row form_row_' . $elemName . ' ' . $errClass . ' ' . $requiredClass . '">';
 						$rowHtml = $this->$method($elemName, $data);
 						// div around form element
 						$elementHtml = '<div class="elem elem_' . $data['type'] . '">' . $rowHtml['element'] . '</div>';
@@ -99,11 +100,11 @@ abstract class FormRenderer {
 		$id = $this->getElemId($elemName);
 		$eventhandlers = $this->getEventHandlersString($data['eventhandler']);
 		
-		$elementHtml = '<input type="submit" name="' . $elemName . '" id="' . $id . '" value="' . $data['value'] . '" ' . $eventhandlers . '/>';
+		$elementHtml = '<button class="btn" type="submit" name="' . $elemName . '" id="' . $id . '" ' . $eventhandlers . '>' . $data['value'] . '</button>';
 		
 		return array(
 				'element' => $elementHtml,
-				'label' => ''
+				'label' => '<span></span>'
 		);
 	} 
 	
@@ -112,7 +113,7 @@ abstract class FormRenderer {
 		$id = $this->getElemId($elemName);
 		$eventhandlers = $this->getEventHandlersString($data['eventhandler']);
 		
-		$elementHtml = '<input type="button" name="' . $elemName . '" id="' . $id . '" value="' . $data['value'] . '" ' . $eventhandlers . '/>';
+		$elementHtml = '<input class="btn" type="button" name="' . $elemName . '" id="' . $id . '" value="' . $data['value'] . '" ' . $eventhandlers . '/>';
 		
 		return array(
 				'element' => $elementHtml,
@@ -621,5 +622,15 @@ abstract class FormRenderer {
 			}
 		}
 		return $string;
+	}
+
+	/**
+	 * return error css class if field is invalid
+	 */
+	private function getErrorClass($name) {
+		if (in_array($name, $this->formErrors)) {
+			return ' field-invalid ';
+		}
+		return '';
 	}
 }
