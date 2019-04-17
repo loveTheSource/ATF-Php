@@ -34,7 +34,7 @@ class DbSelector {
 	/**
 	 * select (columns)
 	 * 
-	 * @param array|string $columns table columns
+	 * @param array|string $columns table columns or '*'
 	 * @return \ATFApp\Core\DbSelector
 	 */
 	public function select($columns) {
@@ -125,7 +125,7 @@ class DbSelector {
 	 * 
 	 * @param string $fetchType 'array' | 'class'
 	 * @param string $class classname (required if fetchType is set to 'class')
-	 * @return boolean
+	 * @return boolean|array
 	 */
 	public function fetchResults($fetchType='array', $class=null) {
 		$statementData = $this->createQuery();
@@ -133,6 +133,7 @@ class DbSelector {
 		$params = $statementData['params'];
 		
 		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
+
 		$res = $statementHandler->execute($params);
 		
 		if ($res !== false) {
@@ -169,7 +170,7 @@ class DbSelector {
 		
 		foreach ($this->wheres as $i => $w) {
 			if ($i > 0) {
-				$query .= " && ";
+				$query .= " AND ";
 			} else {
 				$query .= " WHERE ";
 			}

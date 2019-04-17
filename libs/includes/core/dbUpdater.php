@@ -131,7 +131,7 @@ class DbUpdater {
 		
 		foreach ($this->wheres as $i => $w) {
 			if ($i > 0) {
-				$query .= " && ";
+				$query .= " AND ";
 			} else {
 				$query .= " WHERE ";
 			}

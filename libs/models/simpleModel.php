@@ -52,7 +52,7 @@ abstract class SimpleModel extends BaseModel {
 	
 		$query .= " WHERE ";
 		foreach ($this->getPrimaryKeyColumns() AS $i => $col) {
-			if ($i != 0) $query .= " && ";
+			if ($i != 0) $query .= " AND ";
 			$query .= ' ' . $col . ' = :' . $col;
 			$params[$col] = $this->$col;
 		}
@@ -129,7 +129,7 @@ abstract class SimpleModel extends BaseModel {
 		$query = 'DELETE FROM ' . $this->getTable() . ' WHERE ';
 		foreach ($this->getPrimaryKeyColumns() as $i => $col) {
 			if ($i !== 0) {
-				$query .= ' && ';
+				$query .= ' AND ';
 			}
 			$queryParams[$col] = $this->$col;
 			$query .= ' ' . $col . ' = :'.$col;
@@ -183,7 +183,7 @@ abstract class SimpleModel extends BaseModel {
 		foreach ($primaryKeys AS $k) {
 			// add primary key to where clause
 			if ($keysCounter != 0) {
-				$query .= ' && ';
+				$query .= 'AND ';
 			}
 			$query .= ' ' . $k . ' = :' . $k;
 			$params[$k] = $keys[$k];
@@ -248,7 +248,7 @@ abstract class SimpleModel extends BaseModel {
 		$params = [];
 		foreach ($columnValues AS $col => $val) {
 			if ($keysCounter !== 0) {
-				$query .= ' && ';
+				$query .= ' AND ';
 			}
 			$query .= ' ' . $col . ' = :' . $col;
 			$params[$col] = $val;
