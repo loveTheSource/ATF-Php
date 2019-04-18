@@ -180,7 +180,18 @@ abstract class Includer {
     	$obj = basic_memcache::getInstance();
     	return $obj;
     } 
-    */
+	*/
+	
+	public static function getDbSelector($dbConnection=null) {
+		$obj = new Core\DbSelector($dbConnection);
+		return $obj;
+	}
+
+	public static function getDbUpdater($dbConnection=null) {
+		$obj = new Core\DbSelector($dbConnection);
+		return $obj;
+	}
+
 }
 
 ?>

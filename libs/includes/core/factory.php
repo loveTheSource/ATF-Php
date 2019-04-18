@@ -75,6 +75,7 @@ class Factory extends Includer {
 	}
 
 
+
 	/**
 	 * get form object
 	 * 
@@ -84,8 +85,12 @@ class Factory extends Includer {
 	 * @return \ATFApp\Helper\Form
 	 */
 	public static function getFormObj($name, $id=null, $cssClass=null) {
-		$obj = new Helper\Form($name, $id, $cssClass);
-		return $obj;
+		$form = new Helper\Form($name, $id, $cssClass);
+		if (ProjectConstants::CSRF_FORCE_VALIDATION) {
+			$csrf = self::getHelper('csrfTokens');
+			$form->addHiddenField(ProjectConstants::CSRF_POST_PARAM, $csrf->getNewToken());
+		}
+		return $form;
 	}
 	
 }
