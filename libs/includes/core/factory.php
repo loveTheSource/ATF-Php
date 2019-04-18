@@ -8,6 +8,8 @@ use ATFApp\BasicFunctions as BasicFunctions;
 use ATFApp\ProjectConstants AS ProjectConstants;
 use ATFApp\Exceptions as Exceptions;
 
+use ATFApp\Helper;
+
 class Factory extends Includer {
 	
 	/**
@@ -60,16 +62,30 @@ class Factory extends Includer {
 	 * 
 	 * @param string $helper
 	 * @throws Exception
-	 * @return helper object
+	 * @return \ATFApp\Helper\* object
 	 */
 	public static function getHelper($helper) {
 		try {
-			$class = 'Helper\\' . ucfirst($helper);
+			$class = '\ATFApp\Helper\\' . ucfirst($helper);
 			$obj = new $class();
 			return $obj;
 		} catch (\Exception $e) {
 			throw $e;
 		}
+	}
+
+
+	/**
+	 * get form object
+	 * 
+	 * @param string $name
+	 * @param string $id
+	 * @param string $cssClass
+	 * @return \ATFApp\Helper\Form
+	 */
+	public static function getFormObj($name, $id=null, $cssClass=null) {
+		$obj = new Helper\Form($name, $id, $cssClass);
+		return $obj;
 	}
 	
 }
