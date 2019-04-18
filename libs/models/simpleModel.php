@@ -15,7 +15,8 @@ require_once 'baseModel.php';
 abstract class SimpleModel extends BaseModel {
 	
 	protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
-
+	protected $tableColumnsProtected = [];
+	
 	public function __construct() {	}
 	
 	/**

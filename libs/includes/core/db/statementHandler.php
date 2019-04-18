@@ -5,6 +5,7 @@ namespace ATFApp\Core\Db;
 use ATFApp\BasicFunctions;
 use ATFApp\ProjectConstants;
 use ATFApp\Core;
+use ATFApp\Exceptions;
 
 /**
  * class to handle profiling when using pdo prepared statements (execute method)
@@ -51,31 +52,43 @@ class StatementHandler {
 	 * @param string $return select return value (cols / rows)
 	 */
 	public function execute($params=[], $return='rows') {
-		$this->db->logQuery($this->query, 'execute', $params);
-		$profilerInUse = false;
-		if ($this->useProfiler) {
-			$profilerInUse = true;
-			$before = microtime(true);
-		}
-		
-		$result = $this->statement->execute($params);
-
-		if ($profilerInUse) {
-			$executionTime = bcsub(microtime(true), $before, 6);
-			$db = Core\Factory::getDbObj($this->dbConnection);
-			if (method_exists($db, 'addProfile')) {
-				$db->addProfile('EXECUTE: ' . $this->statement->queryString . "\n" . preg_replace('/[\n]/', '', var_export($params, true)), $executionTime);
+		try	{
+			$this->db->logQuery($this->query, 'execute', $params);
+			$profilerInUse = false;
+			if ($this->useProfiler) {
+				$profilerInUse = true;
+				$before = microtime(true);
 			}
-		}
-		
-		if ($result !== false) {
-			if ($return === "cols") {
-				return $this->statement->columnCount();
-			} else {
-				return $this->statement->rowCount();
+			
+			$result = $this->statement->execute($params);
+	
+			if ($profilerInUse) {
+				$executionTime = bcsub(microtime(true), $before, 6);
+				$db = Core\Factory::getDbObj($this->dbConnection);
+				if (method_exists($db, 'addProfile')) {
+					$db->addProfile('EXECUTE: ' . $this->statement->queryString . "\n" . preg_replace('/[\n]/', '', var_export($params, true)), $executionTime);
+				}
 			}
+			
+			if ($result !== false) {
+				if ($return === "cols") {
+					return $this->statement->columnCount();
+				} else {
+					return $this->statement->rowCount();
+				}
+			}
+			return false;
+		} catch (\Throwable $e) {
+			throw new Exceptions\Db(
+				$e->getMessage(),
+				$e->getCode(),
+				$e,
+				[
+					'params' => $params,
+					'return' => $return
+				]
+			);
 		}
-		return false;
 	}
 
 	public function fetchAll($fetchStyle=null, $class=null) {
