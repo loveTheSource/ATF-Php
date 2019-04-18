@@ -110,19 +110,13 @@ class Bootstrap {
 	 * manage routing (module/cmd/action)
 	 * e.g.
 	 * 
-	 * /module/cmd/action?var1=abc&var2=123
-	 * 
-	 * missing values will be set to default:
-	 * /module/cmd/ 	=> /module/cmd/index
-	 * /module/ 		=> /module/index/index
-	 * / 				=> /index/index/index
-	 * 
+	 * /some/route/:var1
 	 */
 	public function initRouting() {
 		$router = Core\Includer::getRouter();
 		$router->manageRoute();
 	}
-	
+
 	/**
 	 * restore the system messages from session
 	 */
@@ -153,4 +147,25 @@ class Bootstrap {
 		// set main css
 		$doc->addCssFile('style.css');
 	}
+
+	
+	public function initCsrfProtection() {
+		if (ProjectConstants::CSRF_FORCE_VALIDATION) {
+			if (Core\Request::isPostRequest()) {
+				try {
+					$csrfToken = Core\Request::getParamPost(ProjectConstants::CSRF_POST_PARAM);
+					/** @var \ATFApp\Helper\CsrfTokens $csrfHelper */
+					$csrfHelper = Core\Factory::getHelper('csrfTokens');
+					if (!$csrfToken || !$csrfHelper->validateToken($csrfToken)) {
+						BasicFunctions::addMessage('error', "Token invalid");
+						$router = Core\Includer::getRouter();
+						$conf403 = $router->checkRoute(ProjectConstants::ROUTE_403, true);
+					}
+				} catch(\Throwable $e) {
+					die("token invalid");
+				}
+			}
+		}
+	}
+
 }

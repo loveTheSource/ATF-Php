@@ -34,12 +34,14 @@ class Redirect {
 	 * @param string $action
 	 * @param integer $code
 	 */
+	/*
 	public function redirectTo($module, $cmd=null, $action=null, $code=null) {
 		$url = BasicFunctions::getLink($module, $cmd, $action);
 		
 		$this->performRedirect($url, $code);
 	}
-	
+	*/
+
 	/**
 	 * perform http redirect using CoreReponse class
 	 * 

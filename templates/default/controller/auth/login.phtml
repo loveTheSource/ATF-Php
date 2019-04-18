@@ -1,6 +1,8 @@
 <div class="action action_login">
 	<form id="login" action="<?php echo $obj->getCurrentLink();?>" method="post">
 		<h3><?php echo $obj->getLangText('auth', 'form_login_title');?></h3>
+
+		<input type="hidden" name="_CSRF" value="<?php echo $data['token'];?>" />
 		<div class="row">
 			<div class="descr"><?php echo $obj->getLangText('auth', 'form_login_field_login');?></div>
 			<div class="field"><input type="text" name="auth_login" value="" /></div>

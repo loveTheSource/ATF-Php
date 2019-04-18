@@ -64,7 +64,10 @@ class AuthController extends \ATFApp\Controller\BaseController {
 		}
 		
 		// render login form template
-		return [];
+		$tokenHelper = Core\Factory::getHelper('csrfTokens');
+		return [
+			'token' => $tokenHelper->getNewToken()
+		];
 	}
 	
 	/**

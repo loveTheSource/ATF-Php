@@ -42,6 +42,15 @@ abstract class ConstantsDefaults {
 	
 	// show environment in badge on page top
 	const ENVIRONMENT_BADGE = true;
+
+	// force CSRF token validation
+	const CSRF_FORCE_VALIDATION = true;
+	
+	// CSRF token expiry (seconds)
+	const CSRF_TOKENS_EXPIRY = 60 * 60 * 3;  // 3 hrs
+	
+	// CSRF token param name
+	const CSRF_POST_PARAM = "_CSRF";
 	
 	# +++++++++++++++++++ special routes +++++++++++++++++++
 	
@@ -61,6 +70,9 @@ abstract class ConstantsDefaults {
 	
 	# +++++++++++++++++++ session keys +++++++++++++++++++
 	
+	// session key CSRF tokens
+	const KEY_SESSION_CSRF_TOKENS = "csrf_tokens";
+
 	// session key for route
 	const KEY_SESSION_ROUTE = "session_route";
 	

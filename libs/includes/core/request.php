@@ -28,7 +28,7 @@ class Request {
 	 * @return boolean
 	 */
 	public static function isPostRequest() {
-		return self::getRequestMethod() == "POST";
+		return self::getRequestMethod() === "POST";
 	}
 	/**
 	 * is get request
@@ -36,7 +36,7 @@ class Request {
 	 * @return boolean
 	 */
 	public static function isGetRequest() {
-		return self::getRequestMethod() == "GET";
+		return self::getRequestMethod() === "GET";
 	}
 	
 	
