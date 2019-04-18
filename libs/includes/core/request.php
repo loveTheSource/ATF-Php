@@ -157,8 +157,12 @@ class Request {
 	 */
 	public static function getParamGet($key, $sanitize=true) {
 		if (array_key_exists($key, $_GET)) {
-			if ($sanitize && !is_array($_GET[$key])) {
-				return filter_var($_GET[$key], FILTER_SANITIZE_STRING);
+			if ($sanitize) {
+				if (!is_array($_GET[$key])) {
+					return filter_input(INPUT_GET, $key, FILTER_SANITIZE_STRING);
+				} else {
+					return filter_var_array($_GET[$key], FILTER_SANITIZE_STRING, true);
+				}
 			} else {
 				return $_GET[$key];
 			}
@@ -183,8 +187,12 @@ class Request {
 	 */
 	public static function getParamPost($key, $sanitize=true) {
 		if (array_key_exists($key, $_POST)) {
-			if ($sanitize && !is_array($_POST[$key])) {
-				return filter_var($_POST[$key], FILTER_SANITIZE_STRING);
+			if ($sanitize) {
+				if (!is_array($_POST[$key])) {
+					return filter_input(INPUT_POST, $key, FILTER_SANITIZE_STRING);
+				} else {
+					return filter_var_array($_POST[$key], FILTER_SANITIZE_STRING, true);
+				}
 			} else {
 				return $_POST[$key];
 			}
@@ -305,7 +313,11 @@ class Request {
 	public static function getUserCookie($key, $sanitize=true) {
 		if (array_key_exists($key, $_COOKIE)) {
 			if ($sanitize) {
-				return strip_tags($_COOKIE[$key]);
+				if (!is_array($_COOKIE[$key])) {
+					return filter_input(INPUT_COOKIE, $key, FILTER_SANITIZE_STRING);
+				} else {
+					return filter_var_array($_COOKIE[$key], FILTER_SANITIZE_STRING, true);
+				}
 			} else {
 				return $_COOKIE[$key];
 			}
