@@ -25,7 +25,10 @@ class Autoload {
 		if (strpos($class, '\\') !== false) {
 			$parts = explode('\\', $class);
 			$prefix = $parts[count($parts)-2];
-			$prefixMin1 = $parts[count($parts)-3];
+			$prefixMin1 = false;
+			if (isset($parts[count($parts)-3])) {
+				$prefixMin1 = $parts[count($parts)-3];
+			}
 			$className = $parts[count($parts)-1];
 			$file = false;
 
