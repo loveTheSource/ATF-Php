@@ -19,9 +19,10 @@ class Forward {
 	/**
 	 * forward to internal route
 	 * 
-	 * @param $route
+	 * @param string $route
+	 * @param int $changedResponseCode
 	 */
-	public function forwardTo($route) {
+	public function forwardTo($route, $changedResponseCode=null) {
 		if (is_null($route)) $route = ProjectConstants::ROUTE_DEFAULT;
 		
 		$router = Core\Includer::getRouter();
@@ -35,6 +36,10 @@ class Forward {
 			if ($counter > BasicFunctions::getConfig('project_config', 'forwarding_limit')) {
 				throw new Exceptions\Custom("forward limit reached: " . $counter . ' - can be raised in project_config');
 			} else {
+				if ($changedResponseCode !== null) {
+					$response = Core\Includer::getResponseObj();
+					$response->setStatusCode(401);
+				}
 				$this->performForward($route, $routeCheck);
 			}
 		}

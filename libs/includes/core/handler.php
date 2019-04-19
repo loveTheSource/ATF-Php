@@ -120,7 +120,8 @@ class Handler {
 	 */
 	private function handleAccessDenied() {
 		$auth = Auth::getInstance();
-		$forwarder = new Helper\Forward();
+		/** @var \ATFApp\Helper\Forward $forwarder */
+		$forwarder = Core\Factory::getHelper('forward');
 			
 		if (!$auth->isLoggedIn()) {
 			// try to login
@@ -128,7 +129,7 @@ class Handler {
 				$auth->setRedirectOnAuth(Request::getRequestURL(true, true));
 			}
 			// forward to login (auth module)
-			$forwarder->forwardTo(ProjectConstants::ROUTE_AUTH);
+			$forwarder->forwardTo(ProjectConstants::ROUTE_AUTH, 401);
 		} else {
 			// 403 forbidden
 			$forwarder->forwardTo(ProjectConstants::ROUTE_403);
@@ -204,7 +205,7 @@ class Handler {
 		";
 		// measure final execution time here
 		$executionTime = bcsub(microtime(true), $_SERVER["REQUEST_TIME_FLOAT"], 6);
-		echo '<fieldset style="font-size: 12px; font-family:monospace;"><legend onclick="showHide(\'atf_debug_infos\');" style="cursor:pointer;"><b>D E B U G</b></legend>';
+		echo '<fieldset style="font-size: 12px; font-family:monospace; margin: 10px;"><legend onclick="showHide(\'atf_debug_infos\');" style="cursor:pointer;"><b>D E B U G</b></legend>';
 		
 		echo '<table id="atf_debug_infos" style="display:inline;">';
 			echo '<tr>';

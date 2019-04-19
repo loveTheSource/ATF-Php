@@ -18,6 +18,7 @@ class Response {
 		307 => 'Temporary Redirect',
 		308 => 'Permanent Redirect',
 		400 => 'Bad Request',
+		401 => 'Unauthorized',
 		403 => 'Forbidden',
 		404 => 'Not Found',
 		418 => 'I’m a teapot',  // :)
