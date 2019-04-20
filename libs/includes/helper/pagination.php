@@ -10,6 +10,7 @@ class Pagination {
     private $table = null;
     private $selectCols = [];
     private $orderCols = [];
+    private $limit = null;
 
 	public function __construct() { }
 
@@ -17,21 +18,31 @@ class Pagination {
      * initialize pagination
      * 
      * @param string $table
+     * @param int $limit
      * @param array $selectCols
      * @param array $orderCols
      */
-    public function init(string $table, array $selectCols, array $orderCols) {
+    public function init(string $table, array $selectCols, int $limit = 10, array $orderCols) {
         if (empty($table)) {
             throw new Exceptions\Custom('pagination: table may not be empty.');
         }
         if (empty($selectCols)) {
             throw new Exceptions\Custom('pagination: "selectCols" may not be empty.');
         }
-        if (empty($orderCols)) {
-            throw new Exceptions\Custom('pagination: "orderCols" may not be empty.');
+        if (empty($limit)) {
+            throw new Exceptions\Custom('pagination: "limit" may not be empty.');
+        }
+        if (!is_array($orderCols)) {
+            throw new Exceptions\Custom('pagination: "orderCols" must be an array.');
+        }
+
+        $limit = (int)$limit;
+        if ($limit < 1) {
+            $limit = 10;
         }
 
         $this->table = $table;
+        $this->limit = $limit;
         $this->selectCols = $selectCols;
         $this->orderCols = $orderCols;
     }
@@ -39,17 +50,21 @@ class Pagination {
     /**
      * get page of results
      * 
+     * @param int $page 
      * @param array $where ['col' => 'value', 'col2' => 'value2']
      * @param string $order column
      * @param string $sort ASC|DESC
-     * @param int $start
-     * @param int $limit
      * @param ATFApp\Models $modelClass
      */
-    public function getPage(array $where, $order, $sort, $start, $limit, $modelClass=null) {
+    public function getPage($page, array $where, $order, $sort, $modelClass=null) {
+        // sort
         $sort = (strtoupper($sort) === "ASC") ? "ASC" : "DESC";
-        $start = (int)$start;
-        $limit = (int)$limit;
+        // limit
+        $limit = $this->limit;
+        // page
+        $page = (int)$page;
+        if ($page < 1) $page = 1;
+        $start = ($page -1) * $limit;
 
         $dbSelector = Core\Includer::getDbSelector();
         $dbSelector->select($this->selectCols)->from($this->table);
@@ -73,9 +88,26 @@ class Pagination {
             $results = $dbSelector->fetchResults();
         }
 
+        // pagination infos
+        $totalPages = ceil($resultsCount / $limit);
+        $previousPage = false; // no previous page
+        $nextPage = false; // no next page
+        $currentPage = $page;
+        if ($currentPage > 1) {
+            $previousPage = $currentPage - 1;
+        }
+        if ($currentPage < $totalPages) {
+            $nextPage = $currentPage + 1;
+        }
+
         return [
             'results' => $results,
-            'count' => $resultsCount
+            'count' => $resultsCount,
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage,
+            'nextPage' => $nextPage,
+            'previousPage' => $previousPage,
+            'offset' => $start
         ];
     }
 }
