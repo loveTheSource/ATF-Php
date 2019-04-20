@@ -53,7 +53,7 @@ class Dummy extends SimpleModel {
 	/**
 	 * related tables (optional)
 	 * 
-	 * usage: $model->getRelationData('new_key')
+	 * usage: $model->getForeignDataByRelation('new_key')
 	 */
 	protected $tableRelations = [
 		'new_key' => [

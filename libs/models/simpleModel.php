@@ -440,11 +440,12 @@ abstract class SimpleModel extends BaseModel {
 
 	/**
 	 * get data from related table
+	 * using table relations
 	 * 
 	 * @param string $relationKey array key in model $tableRelations
 	 * @return array Models
 	 */
-	public function getRelationData($relationKey) {
+	public function getForeignDataByRelation($relationKey) {
 		if (!array_key_exists($relationKey, $this->tableRelations)) {
 			throw new Exceptions\Db('relation key "' . $relationKey . '" unknown to table: ' . $this->table);
 		}
