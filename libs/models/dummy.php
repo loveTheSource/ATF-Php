@@ -11,36 +11,65 @@ use ATFApp\ProjectConstants;
 require_once 'simpleModel.php';
 
 class Dummy extends SimpleModel {
-	// connection id
-	// protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;  // default - can be overwritten here
+	/**
+	 * connection id (optional)
+	 */
+	protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;  // default - can be overwritten here
 
-	// table name in db
+	/**
+	 * table name in db
+	 */
 	protected $table = "table_name";
 
-	// list of columns that build a primary id or at least a unique id
+	/**
+	 * list of columns that build a primary id or at least a unique id
+	 */
 	protected $tablePrimaryKeys = ['id'];
 	
-	// foreign keys
-	protected $tableForeignKeys = [
-		'FK_column' => [
-			'relation' => '1-1', // 1-1, 1-m, m-m
-			'model' => 'Modelname',
-			'column' => 'column'
-		]
-	];
-
-	// protecteed columns... may not be changed
-	protected $tableColumnsProtected = ['user_since'];
-
-	// table columns
+	/**
+	 * table columns
+	 */
 	protected $tableColumns = [
 		'id',
 		'email',
 		'password',
 		'last_login',
-		'FK_whatever'
+		'FK_column'
 	];
 	
+	/** 
+	 * foreign keys (optional)
+	 * 
+	 * usage: $model->getForeignData('FK_column')
+	 */
+	protected $tableForeignKeys = [
+		'FK_column' => [
+			'relation' => '1-1', // 1-1, 1-m, m-m
+			'model' => 'Modelclass',
+			'remoteCol' => 'column'
+		]
+	];
+
+	/**
+	 * related tables (optional)
+	 * 
+	 * usage: $model->getRelationData('new_key')
+	 */
+	protected $tableRelations = [
+		'new_key' => [
+			'sourceCol' => 'id',		// column in this model
+			'model' => 'Modelclass',	// model class
+			'remoteCol' => 'user_id'	// column in remote table (Modelclass)
+		]
+	];
+
+	/**
+	 * protecteed columns (optional)
+	 * columns that may not be changed via model
+	 */
+	protected $tableColumnsProtected = ['user_since'];
+
+
 	/** 
 	 * private constructor
 	 * its a dummy...

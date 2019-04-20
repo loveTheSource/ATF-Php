@@ -21,7 +21,14 @@ class User extends SimpleModel {
 		'name'
 	];
 	protected $tableColumnsProtected = ['user_since'];
-	
+	protected $tableRelations = [
+		'userdata' => [
+			'sourceCol' => 'id',
+			'model' => 'Testdata',
+			'remoteCol' => 'user_id'
+		]
+	];
+
 	public function __construct() {	}
 	
 	/**

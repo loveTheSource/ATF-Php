@@ -16,7 +16,9 @@ abstract class SimpleModel extends BaseModel {
 	
 	protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
 	protected $tableColumnsProtected = [];
-	
+	protected $tableForeignKeys = [];
+	protected $tableRelations = [];
+
 	public function __construct() {	}
 	
 	/**
@@ -413,4 +415,49 @@ abstract class SimpleModel extends BaseModel {
 		
 	}
 
+	/**
+	 * get data from foreign table
+	 * using foreign key
+	 * 
+	 * @param string $foreignKey array key in model $tableForeignKeys
+	 * @return array Models
+	 */
+	public function getForeignData($foreignKey) {
+		if (!array_key_exists($foreignKey, $this->tableForeignKeys)) {
+			throw new Exceptions\Db('foreign key "' . $foreignKey . '" unknown to table: ' . $this->table);
+		}
+
+		$foreignKeyConf = $this->tableForeignKeys[$foreignKey];
+		$modelClass = '\ATFApp\Models\\' . $foreignKeyConf['model'];
+		if (!class_exists($modelClass)) {
+			throw new Exceptions\Db('model "' . $modelClass . '" unknown in foreign key "' . $foreignKey . '" - table: ' . $this->table);
+		}
+		$foreignModel = new $modelClass();
+		$foreignData = $foreignModel->selectByColumns([$foreignKeyConf['remoteCol'] => $this->$foreignKey]);
+
+		return $foreignData;
+	}
+
+	/**
+	 * get data from related table
+	 * 
+	 * @param string $relationKey array key in model $tableRelations
+	 * @return array Models
+	 */
+	public function getRelationData($relationKey) {
+		if (!array_key_exists($relationKey, $this->tableRelations)) {
+			throw new Exceptions\Db('relation key "' . $relationKey . '" unknown to table: ' . $this->table);
+		}
+
+		$relationConf = $this->tableRelations[$relationKey];
+		$modelClass = '\ATFApp\Models\\' . $relationConf['model'];
+		if (!class_exists($modelClass)) {
+			throw new Exceptions\Db('model "' . $modelClass . '" unknown in foreign key "' . $relationKey . '" - table: ' . $this->table);
+		}
+		$foreignModel = new $modelClass();
+		$sourceCol = $relationConf['sourceCol'];
+		$foreignData = $foreignModel->selectByColumns([$relationConf['remoteCol'] => $this->$sourceCol]);
+
+		return $foreignData;
+	}
 }
