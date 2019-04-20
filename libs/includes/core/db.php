@@ -53,7 +53,7 @@ class Db {
 			self::checkConfig($connectionId, $connConfig);
 
 			switch ($connConfig['type']) {
-				case 'mysql':
+				case ProjectConstants::DB_CONNECTION_TYPE_MYSQL:
 					$dsn = 'mysql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
 					$options = [
 						\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
@@ -68,7 +68,7 @@ class Db {
 					}
 					break;
 					
-				case 'pgsql':
+				case ProjectConstants::DB_CONNECTION_TYPE_PGSQL:
 					$dsn = 'pgsql:host=' . $connConfig['host'] . ';dbname=' . $connConfig['db'];
 					$optionsStr = ";options='-c client_encoding=utf8'";
 					$options = [
@@ -83,7 +83,7 @@ class Db {
 					}
 					break;
 					
-				case 'sqlite':
+				case ProjectConstants::DB_CONNECTION_TYPE_SQLITE:
 					// TODO untested!!!
 					// resolves to either 'sqlite:/path/to/db/file' or 'sqlite::memory'
 					$dsn = 'sqlite:' . $connConfig['host'];

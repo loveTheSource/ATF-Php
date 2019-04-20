@@ -40,6 +40,11 @@ abstract class ConstantsDefaults {
 	// default database connection id (db_config.php)
 	const DB_DEFAULT_CONNECTION = "default";
 	
+	// db connection type keys
+	const DB_CONNECTION_TYPE_MYSQL = "mysql";
+	const DB_CONNECTION_TYPE_PGSQL = "pgsql";
+	const DB_CONNECTION_TYPE_SQLITE = "sqlite";
+
 	// show environment in badge on page top
 	const ENVIRONMENT_BADGE = true;
 
