@@ -183,11 +183,11 @@ class Auth {
 		$userId = $this->getUserId();
 		
 		$db = Core\Factory::getDbObj();
-		$query = "SELECT ug.group AS id, g.groupname, g.active
+		$query = "SELECT ug.group_id AS id, g.groupname, g.active
 				FROM user_groups AS ug
 				LEFT JOIN groups AS g
-				ON g.id = ug.group
-				WHERE ug.user = " . $db->quote($userId);
+				ON g.id = ug.group_id
+				WHERE ug.user_id = " . $db->quote($userId);
 
 		$res = $db->query($query);
 		if ($res !== false) {
