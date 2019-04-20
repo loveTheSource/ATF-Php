@@ -120,6 +120,33 @@ class DbSelector {
 		return $this;
 	}
 
+
+	/**
+	 * count rows instead of fetching all results
+	 * 
+	 * @return \ATFApp\Core\DbSelector
+	 */
+	public function countResults() {
+		$statementData = $this->createQuery(true);
+		$query = $statementData['query'];
+		$params = $statementData['params'];
+
+		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
+
+		$res = $statementHandler->execute($params);
+		if ($res !== false && $res >= 1) {
+			$result = $statementHandler->fetchAll();
+			if (is_array($result) && isset($result[0])) {
+				if (isset($result[0]['count'])) {
+					return $result[0]['count'];
+				}
+			}
+		}
+
+		return 0;
+	}
+
+
 	/**
 	 * fetch query results
 	 * 
@@ -157,16 +184,21 @@ class DbSelector {
 	 * 
 	 * @return array ['query' => '...', 'params' => ['...', ] ]
 	 */
-	private function createQuery() {
+	private function createQuery($createCountQuery=false) {
 		if (empty($this->columns)) {
 			return false;
 		} elseif (is_null($this->table)) {
 			return false;
 		}
 		
-		$query = "SELECT " . implode(",", $this->columns) . " FROM " . $this->table;
+		if ($createCountQuery) {
+			$query = "SELECT COUNT(*) FROM " . $this->table;
+		} else {
+			$query = "SELECT " . implode(",", $this->columns) . " FROM " . $this->table;
+		}
 		$params = [];
 		
+		// where
 		foreach ($this->wheres as $i => $w) {
 			if ($i > 0) {
 				$query .= " AND ";
@@ -176,21 +208,25 @@ class DbSelector {
 			$query .= $w['column'] . ' ' . $w['operator'] . ' :' . $w['column'];
 			$params[$w['column']] = $w['value'];
 		}
-		
-		foreach ($this->orders as $i => $o) {
-			if ($i > 0) {
-				$query .= ", ";
-			} else {
-				$query .= " ORDER BY ";
+				
+		if (!$createCountQuery) {
+			// order
+			foreach ($this->orders as $i => $o) {
+				if ($i > 0) {
+					$query .= ", ";
+				} else {
+					$query .= " ORDER BY ";
+				}
+				$query .= $o['column'] . ' ' . $o['sort'];
 			}
-			$query .= $o['column'] . ' ' . $o['sort'];
-		}
-		
-		if (!is_null($this->start) && !is_null($this->limit)) {
-			if ($this->getDbConnectionType() === ProjectConstants::DB_CONNECTION_TYPE_PGSQL) {
-				$query .= " LIMIT " . $this->limit . " OFFSET " . $this->start;
-			} else {
-				$query .= " LIMIT " . $this->start . ', ' . $this->limit;
+	
+			// limit
+			if (!is_null($this->start) && !is_null($this->limit)) {
+				if ($this->getDbConnectionType() === ProjectConstants::DB_CONNECTION_TYPE_PGSQL) {
+					$query .= " LIMIT " . $this->limit . " OFFSET " . $this->start;
+				} else {
+					$query .= " LIMIT " . $this->start . ', ' . $this->limit;
+				}
 			}
 		}
 
