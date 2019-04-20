@@ -1,22 +1,77 @@
-<!-- TODO finish this.. might be used using TemplateFunctions->includeTemplate(..);-->
+<?php
+/**
+ * pagination helper template
+ * 
+ * usage:
+ * - get page data with pagination helper in controller/action
+ * 
+ * - return array[
+ *      'baseLink' => 'url_without_page,
+ *      'page' => 'result_from_pagination_helper',
+ *      'columns' => [
+ *          'column1' => 'table_head1'
+ *          'column2' => 'table_head2'
+ *      ]
+ *   ]
+ * 
+ * - in template use:
+ *      $obj->includeTemplate('helper/pagination.phtml', $data);
+ */
+?>
 <div class="helper-pagination">
     <table>
         <thead>
             <tr>
-                <th></th>
-                <th></th>
-                <th></th>
+                <?php foreach ($data['columns'] as $col => $name) { ?>
+                    <th><?php echo $name; ?></th>
+                <?php } ?>
             </tr>
         </thead>
 
         <tbody>
-            <?php foreach ([] as $row) { ?>
+            <?php foreach ($data['page']['results'] as $row) { ?>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <?php foreach ($data['columns'] as $col => $name) { ?>
+                        <td><?php echo $row[$col]; ?></td>
+                    <?php } ?>
                 </tr>            
             <?php } ?>
         </tbody>
     <table>
+
+    <div class="pagination-links">
+        <?php if ($data['page']['firstPage'] !== false) { ?>
+            <a href="<?php echo $data['baseLink'] . $data['page']['firstPage']; ?>" class="btn page-first">
+                <?php echo $data['page']['firstPage']; ?>
+            </a>
+        <?php } ?>
+
+        <?php if ($data['page']['previousPage'] !== false) { ?>
+            <a href="<?php echo $data['baseLink'] . $data['page']['previousPage']; ?>" class="btn page-prev">
+                <?php echo $data['page']['previousPage']; ?>
+            </a>
+        <?php } ?>
+
+        <?php if ($data['page']['currentPage'] !== false) { ?>
+            <a class="btn disabled page-current">
+                <?php echo $data['page']['currentPage']; ?>
+            </a>
+        <?php } ?>
+
+        <?php if ($data['page']['nextPage'] !== false) { ?>
+            <a href="<?php echo $data['baseLink'] . $data['page']['nextPage']; ?>" class="btn page-next">
+                <?php echo $data['page']['nextPage']; ?>
+            </a>
+        <?php } ?>
+
+        <?php if ($data['page']['lastPage'] !== false) { ?>
+            <a href="<?php echo $data['baseLink'] . $data['page']['lastPage']; ?>" class="btn page-last">
+                <?php echo $data['page']['lastPage']; ?>
+            </a>
+        <?php } ?>
+    </div>
+
+    <div class="pagination-total">
+        Total: <?php echo $data['page']['count']; ?>
+    </div>
 </div>

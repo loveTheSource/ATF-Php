@@ -82,27 +82,52 @@ class Pagination {
 
         $resultsCount = $dbSelector->countResults();
 
-        if (!is_null($modelClass)) {
-            $results = $dbSelector->fetchResults('class', $modelClass);
-        } else {
-            $results = $dbSelector->fetchResults();
-        }
-
         // pagination infos
-        $totalPages = ceil($resultsCount / $limit);
+        $totalPages = (int)ceil($resultsCount / $limit);
+        $firstPage = 1;
+        $lastPage = $totalPages;
         $previousPage = false; // no previous page
         $nextPage = false; // no next page
         $currentPage = $page;
         if ($currentPage > 1) {
             $previousPage = $currentPage - 1;
+            if ($previousPage > $totalPages) {
+                $previousPage = $totalPages;
+            }
         }
         if ($currentPage < $totalPages) {
             $nextPage = $currentPage + 1;
         }
+        if ($firstPage === $previousPage || $firstPage === $currentPage) {
+            // prevent duplicate
+            $firstPage = false;
+        }
+        if ($lastPage === $nextPage || $lastPage === $currentPage) {
+            // prevent duplicate
+            $lastPage = false;
+        }
+
+        $results = [];
+        if ($currentPage <= $totalPages) {
+            if (!is_null($modelClass)) {
+                $results = $dbSelector->fetchResults('class', $modelClass);
+            } else {
+                $results = $dbSelector->fetchResults();
+            }
+            if (!$results) {
+                $results = [];
+            }
+        } else {
+            // remove links
+            $lastPage = false;
+        }
+
 
         return [
             'results' => $results,
             'count' => $resultsCount,
+            'firstPage' => $firstPage,
+            'lastPage' => $lastPage,
             'totalPages' => $totalPages,
             'currentPage' => $currentPage,
             'nextPage' => $nextPage,
