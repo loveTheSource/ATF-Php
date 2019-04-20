@@ -91,4 +91,25 @@ abstract class BaseModel {
 	public function getDb() {
 		return Core\Factory::getDbObj($this->dbConnection);
 	}
+
+	/**
+	 * return type of db connection
+	 * - mysql
+	 * - pgsql
+	 * - sqlite
+	 * 
+	 * @return string|false
+	 */
+	public function getDbConnectionType() {
+		$dbConf = BasicFunctions::getConfig('db');
+		$connectionId = $this->dbConnection;
+
+		if (isset($dbConf[$connectionId])) {
+			if (isset($dbConf[$connectionId]['type'])) {
+				return $dbConf[$connectionId]['type'];
+			}
+		}
+
+		return false;
+	}
 }

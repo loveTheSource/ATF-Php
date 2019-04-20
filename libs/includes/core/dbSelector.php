@@ -187,7 +187,11 @@ class DbSelector {
 		}
 		
 		if (!is_null($this->start) && !is_null($this->limit)) {
-			$query .= " LIMIT " . $this->start . ', ' . $this->limit;
+			if ($this->getDbConnectionType() === ProjectConstants::DB_CONNECTION_TYPE_PGSQL) {
+				$query .= " LIMIT " . $this->limit . " OFFSET " . $this->start;
+			} else {
+				$query .= " LIMIT " . $this->start . ', ' . $this->limit;
+			}
 		}
 
 		return [
@@ -195,5 +199,28 @@ class DbSelector {
 			'params' => $params
 		];
 	}
+
+
+	/**
+	 * return type of db connection
+	 * - mysql
+	 * - pgsql
+	 * - sqlite
+	 * 
+	 * @return string|false
+	 */
+	public function getDbConnectionType() {
+		$dbConf = BasicFunctions::getConfig('db');
+		$connectionId = $this->dbConnection;
+
+		if (isset($dbConf[$connectionId])) {
+			if (isset($dbConf[$connectionId]['type'])) {
+				return $dbConf[$connectionId]['type'];
+			}
+		}
+
+		return false;
+	}
+
 }
 

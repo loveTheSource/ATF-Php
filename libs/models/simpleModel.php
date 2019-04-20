@@ -381,7 +381,11 @@ abstract class SimpleModel extends BaseModel {
 		}
 		
 		if (!is_null($limit)) {
-			$query .= " LIMIT " . (int)$start . ", " . (int)$limit;
+			if ($this->getDbConnectionType() === ProjectConstants::DB_CONNECTION_TYPE_PGSQL) {
+				$query .= " LIMIT " . (int)$limit . " OFFSET " . (int)$start;
+			} else {
+				$query .= " LIMIT " . (int)$start . ", " . (int)$limit;
+			}
 		}
 		
 		$query .= "; ";
