@@ -40,7 +40,7 @@ class AuthController extends \ATFApp\Controller\BaseController {
 		$loginSuccess = false;
 		if ($auth->isLoggedIn()) {
 			// already logged in
-			return $this->loggedIn();
+			$this->redirect('/');
 		} else {
 			$login = Core\Request::getParamPost('auth_login');
 			$pass = Core\Request::getParamPost('auth_password');
@@ -55,7 +55,7 @@ class AuthController extends \ATFApp\Controller\BaseController {
 						BasicFunctions::doRedirect($url, 303);
 					} else {
 						// return empty string to prevent template rendering
-						return $this->loggedIn();
+						$this->redirect('/');
 					}
 				} else {
 					BasicFunctions::addMessage('error', BasicFunctions::getLangText('auth', 'msg_login_failed'));
@@ -80,15 +80,7 @@ class AuthController extends \ATFApp\Controller\BaseController {
 		}
 		BasicFunctions::addMessage('success', BasicFunctions::getLangText('auth', 'msg_logout_success'));
 		// forward to login
-		$this->forwardToRoute('/auth/login');
+		$this->redirect('/auth/login');
 	}
-	
-	/**
-	 * content to return, if login succeeded
-	 * 
-	 * @return string
-	 */
-	private function loggedIn() {
-		return '<div>press <a href="/auth/logout">here</a> to logout...</div>';
-	}
+
 }
