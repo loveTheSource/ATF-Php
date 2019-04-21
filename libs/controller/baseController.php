@@ -130,6 +130,16 @@ abstract class BaseController {
 
 
 	/**
+	 * redirect request
+	 * 
+	 * @param int $code
+	 */
+	protected function redirect($route, $code=null) {
+		BasicFunctions::doRedirect($route, $code);
+	}
+
+
+	/**
 	 * respond to request 
 	 * types: json, xml, html/text
 	 * 
