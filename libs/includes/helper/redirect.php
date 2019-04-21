@@ -52,6 +52,11 @@ class Redirect {
 		if (is_null($code) || !in_array($code, $this->supportedCodes)) {
 			$code = $this->defaultRedirect;
 		}
+
+		if (Core\Request::isPostRequest()) {
+			$csrfHelper = new Helper\CsrfTokens();
+			$csrfHelper->restoreUsedToken();
+		}
 		
 		// save system messages
 		BasicFunctions::saveMessages();

@@ -5,6 +5,7 @@ namespace ATFApp\Helper;
 use ATFAPP\ProjectConstants;
 
 use ATFApp\Core;
+use ATFApp\BasicFunctions;
 
 class CsrfTokens {
 
@@ -26,14 +27,34 @@ class CsrfTokens {
         if (is_string($token) 
         && strlen($token) === ($this->tokenLength + strlen($this->tokenPrefix)) 
         && array_key_exists($token, $all)) {
+            $this->setUsedToken($token);
             $this->deleteToken($token);
             $this->cleanupTokens();
+
             return true;
         }
         $this->cleanupTokens();
         return false;
     }
 
+    /**
+     * add currently used csrf token to tokens again
+     * (required for redirects)
+     */
+    public function restoreUsedToken() {
+        $usedToken = $this->getUsedToken();
+        if ($usedToken) {
+            $this->saveToken($usedToken, true);
+        }
+    }
+
+
+    private function setUsedToken($token) {
+        Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_USED_CSRF_TOKEN, $token);
+    }
+    private function getUsedToken() {
+        return Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_USED_CSRF_TOKEN);
+    }
 
 	/**
 	 * get tokens from session
@@ -52,16 +73,21 @@ class CsrfTokens {
         Core\Request::setParamSession(ProjectConstants::KEY_SESSION_CSRF_TOKENS, $tokens);
     }
 
-    private function saveToken($token) {
+    private function saveToken($token, $restoreUsedToken=false) {
         $all = $this->getTokens();
         if (is_null($all)) {
             $all = [];
         }
 
-        $all[$token] = [
+        $newToken = [
             'timstamp' => time(),
             'valid_until' => time() + ProjectConstants::CSRF_TOKENS_EXPIRY
         ];
+        if ($restoreUsedToken) {
+            $newToken['restored'] = 1;
+        }
+
+        $all[$token] = $newToken;
         $this->setTokens($all);
     }
 

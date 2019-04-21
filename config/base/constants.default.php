@@ -112,6 +112,9 @@ abstract class ConstantsDefaults {
 	
 	# +++++++++++++++++++ globals keys +++++++++++++++++++
 	
+	// current used csrf token
+	const KEY_GLOBAL_USED_CSRF_TOKEN = "used_csrf_token";
+
 	// globals key for system messages
 	const KEY_GLOBAL_SYSTEM_MSG = "system_msg";
 	
