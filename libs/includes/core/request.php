@@ -39,7 +39,14 @@ class Request {
 		return self::getRequestMethod() === "GET";
 	}
 	
-	
+	/**
+	 * if request contains files from an upload
+	 * 
+	 * @return boolean
+	 */
+	public static function isPostFileUpload() {
+		return isset($_FILES) && !empty($_FILES);
+	}
 	
 	/**
 	 * return the host incl protocol
@@ -183,7 +190,7 @@ class Request {
 	 *
 	 * @param string $key post key
 	 * @parma boolean $sanitize strip tags for xss prevention
-	 * @return unknown|NULL
+	 * @return mixed|NULL
 	 */
 	public static function getParamPost($key, $sanitize=true) {
 		if (array_key_exists($key, $_POST)) {
