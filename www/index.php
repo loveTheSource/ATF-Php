@@ -4,22 +4,24 @@ namespace ATFApp;
 
 use ATFApp\Exceptions as Exceptions;
 
+// change directory
+// chdir ('../');
+
+$cwd = realpath('../') . DIRECTORY_SEPARATOR;
+
 // main config file
-require_once '../config/base/main_config.php';
+require_once $cwd . 'config/base/main_config.php';
 // fallback version
-require_once '../config/base/main_config.default.php';
+require_once $cwd . 'config/base/main_config.default.php';
 
 // error handling
 require_once EXCEPTIONS_PATH . 'ExceptionHandler.php';
-Exceptions\ExceptionHandler::setEmailRecipients(unserialize(ADMIN_EMAILS));
+\ATFApp\Exceptions\ExceptionHandler::setEmailRecipients(unserialize(ADMIN_EMAILS));
 
 // main project
 require_once LIBS_PATH . 'project.php';
 
 try {
-	// change directory
-	chdir ('../');
-	
 	// create project object and run
 	$project = new ATFProject();
 	$project->init();
@@ -36,9 +38,9 @@ try {
 			// redirect to error page
 			$errorFile = WEBFOLDER . $errorFile;
 			header("Location: $errorFile");
-		} elseif (is_file($errorFile) && is_readable($errorFile) && function_exists('readfile')) {
+		} elseif (is_file(LIBS_PATH . $errorFile) && is_readable(LIBS_PATH . $errorFile) && function_exists('readfile')) {
 			// load and display error page
-			@readfile(HTDOCS_PATH . $errorFile);
+			@readfile(LIBS_PATH . $errorFile);
 			exit();
 		} else {
 			// simply die

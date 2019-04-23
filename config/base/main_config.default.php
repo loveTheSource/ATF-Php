@@ -19,7 +19,7 @@ if (!defined("ADMIN_EMAILS")) define("ADMIN_EMAILS", serialize([]));
 
 
 # main application path
-if (!defined("MAIN_PATH")) define("MAIN_PATH", realpath(dirname( getcwd() )) . DIRECTORY_SEPARATOR);
+if (!defined("MAIN_PATH")) define("MAIN_PATH", realpath( '../' ) . DIRECTORY_SEPARATOR);
 # main folders
 if (!defined("LIBS_PATH")) define("LIBS_PATH", MAIN_PATH . "libs" . DIRECTORY_SEPARATOR);
 if (!defined("CONFIG_PATH")) define("CONFIG_PATH", MAIN_PATH . "config" . DIRECTORY_SEPARATOR);

@@ -19,7 +19,7 @@ define("ADMIN_EMAILS", serialize(['admin@cre8.info']));
 
 
 # main application path
-define("MAIN_PATH", realpath(dirname( getcwd() )) . DIRECTORY_SEPARATOR);
+define("MAIN_PATH", realpath( '../' ) . DIRECTORY_SEPARATOR);
 # main folders
 define("LIBS_PATH", MAIN_PATH . "libs" . DIRECTORY_SEPARATOR);
 define("CONFIG_PATH", MAIN_PATH . "config" . DIRECTORY_SEPARATOR);
