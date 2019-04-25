@@ -60,7 +60,7 @@ class Lang {
 		return $this->langCodes;
 	}
 	
-	public function getLangText($pack, $key, $format=false) {
+	public function getLangText($pack, $key, $format=[]) {
 		if ( !array_key_exists($pack, $this->langPacks) ) {
 			// try to load lang pack
 			$this->loadLangPack($pack);
@@ -72,10 +72,10 @@ class Lang {
 			if ( !array_key_exists($key, $this->langPacks[$pack]) ) {
 				$this->reportMissingTranslation($pack, $key);
 				return $pack . "-" . $key;
-			} elseif ($format!=false) {
+			} elseif (!empty($format)) {
 				// return formated string
 				if (is_array($format)) {
-					return vsprintf($format, $this->langPacks[$pack][$key]);
+					return vsprintf($this->langPacks[$pack][$key], $format);
 				} elseif (is_string($format) || is_numeric($format)) {
 					return sprintf($this->langPacks[$pack][$key], $format);
 				} else {
