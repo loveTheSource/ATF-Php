@@ -69,9 +69,7 @@ class Pagination {
         $dbSelector = Core\Includer::getDbSelector();
         $dbSelector->select($this->selectCols)->from($this->table);
         foreach ($where as $col => $value) {
-            if (in_array($col, $this->selectCols)) {
-                $dbSelector->where($col, $value);
-            }
+            $dbSelector->where($col, $value);
         }
         if (!in_array($order, $this->orderCols) || !in_array($order, $this->selectCols)) {
             $order = $this->selectCols[0];
