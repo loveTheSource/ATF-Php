@@ -4,8 +4,7 @@ namespace ATFApp;
 
 use ATFApp\Exceptions as Exceptions;
 
-// change directory
-// chdir ('../');
+setlocale(LC_ALL,'en_US.UTF-8');
 
 $cwd = realpath('../') . DIRECTORY_SEPARATOR;
 
