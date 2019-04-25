@@ -111,8 +111,8 @@ class Profiler {
 				table#profiler_results tbody td.warning { background-color:#ff9494; }
 				</style>';
 		$html .= '<script type="text/javascript" src="/js/TableSort.js"></script>';
-		$html .= '<div style="width: 100%;font-size: 12px">';
-		$html .= '<fieldset style="font-family:monospace; margin-bottom:10px;">';
+		$html .= '<div style="width: 100%;font-size: 12px; overflow-x:auto;">';
+		$html .= '<fieldset style="font-family:monospace; margin: 10px;">';
 		$html .= '<legend onclick="var el=document.getElementById(\'profiler_results\'); if (el.style.display != \'none\') {el.style.display = \'none\'} else {el.style.display = \'inline\'}" style="cursor:pointer;">';
 		$html .= '<b>P R O F I L E R</b></legend>';
 		

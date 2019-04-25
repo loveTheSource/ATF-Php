@@ -122,16 +122,16 @@ class PdoProfiler extends PdoDb {
 				table.atf_db_profiler_results tbody tr:nth-child(even) { background-color:#EEEEEE; }
 				table.atf_db_profiler_results tbody tr:nth-child(odd) { background-color:#FAFAFA; }
 				</style>';
-		$html .= '<div style="width: 100%;font-size: 12px">';
-		$html .= '<fieldset style="font-family: monospace; margin-bottom: 10px;">';
+		$html .= '<div style="width: 100%;font-size: 12px; overflow-x:auto;">';
+		$html .= '<fieldset style="font-family: monospace; margin: 10px;">';
 		$html .= '<legend onclick="var el=document.getElementById(\'db_profiler_results\'); if (el.style.display != \'none\') {el.style.display = \'none\'} else {el.style.display = \'inline\'}" style="cursor:pointer;">';
-		$html .= '<b>D B - P R O F I L E R | </b>Connection: ' . $name . '</legend>';
+		$html .= '<b>D B - P R O F I L E R</b></legend>';
 		
 		$html .= '<div id="db_profiler_results">';
 			$html .= '<table class="atf_db_profiler_results sortierbar">';
-			$html .= '<tr>';
+			$html .= '<thead><tr>';
 				$html .= '<th class="sortierbar">DB Query</th><th class="sortierbar">Execution Times</th>';
-			$html .= '</tr>';
+			$html .= '</tr></thead>';
 			foreach ($this->profiler AS $query => $profiles) {
 				$html .= '<tr>';
 					$html .= '<td>'.$query.'</td>';

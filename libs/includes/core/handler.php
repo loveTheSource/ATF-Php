@@ -205,6 +205,7 @@ class Handler {
 		";
 		// measure final execution time here
 		$executionTime = bcsub(microtime(true), $_SERVER["REQUEST_TIME_FLOAT"], 6);
+		echo '<div style="width:100%; overflow-x:auto;">';
 		echo '<fieldset style="font-size: 12px; font-family:monospace; margin: 10px;"><legend onclick="showHide(\'atf_debug_infos\');" style="cursor:pointer;"><b>D E B U G</b></legend>';
 		
 		echo '<table id="atf_debug_infos" style="display:inline;">';
@@ -332,5 +333,6 @@ class Handler {
 			
 		echo '</table>';
 		echo '</fieldset>';
+		echo '</div>';
 	}
 }
