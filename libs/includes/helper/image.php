@@ -92,8 +92,7 @@ class Image {
             $sourceImgPath = QUARANTINE_PATH . $file->getFilename();
             $sourceDimensions = $this->getImageDimensions($sourceImgPath);
             $newImg = imagecreatetruecolor($sourceDimensions['width'], $sourceDimensions['height']);
-            $sourceImg = imagecreatefromjpeg($sourceImgPath);
-            
+
             switch ($file->getExtension()) {
                 case "jpg":
                 $sourceImg = imagecreatefromjpeg($sourceImgPath);
@@ -105,6 +104,8 @@ class Image {
     
                 case "png":
                 $sourceImg = imagecreatefrompng($sourceImgPath);
+                imagealphablending($newImg, FALSE);
+                imagesavealpha($newImg, TRUE);        
                 break;
     
                 case "bmp":
@@ -125,6 +126,8 @@ class Image {
                 break;
     
                 case "gif":
+                $background = imagecolorallocate($newImg, 0, 0, 0); 
+                imagecolortransparent($newImg, $background);
                 $result = imagegif($newImg, $sourceImgPath);
                 break;
     
