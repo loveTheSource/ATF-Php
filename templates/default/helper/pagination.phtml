@@ -19,57 +19,61 @@
  */
 ?>
 <div class="helper-pagination">
-    <table>
-        <thead>
-            <tr>
-                <?php foreach ($data['columns'] as $col => $name) { ?>
-                    <th><?php echo $name; ?></th>
-                <?php } ?>
-            </tr>
-        </thead>
-
-        <tbody>
-            <?php foreach ($data['page']['results'] as $row) { ?>
+    <div class="scroll-x">
+        <table>
+            <thead>
                 <tr>
                     <?php foreach ($data['columns'] as $col => $name) { ?>
-                        <td><?php echo $row[$col]; ?></td>
+                        <th><?php echo $name; ?></th>
                     <?php } ?>
-                </tr>            
-            <?php } ?>
-        </tbody>
-    </table>
+                </tr>
+            </thead>
 
-    <div class="pagination-links">
-        <?php if ($data['page']['firstPage'] !== false) { ?>
-            <a href="<?php echo $data['baseLink'] . $data['page']['firstPage']; ?>" class="btn page-first">
-                <?php echo $data['page']['firstPage']; ?>
-            </a>
-        <?php } ?>
-
-        <?php if ($data['page']['previousPage'] !== false) { ?>
-            <a href="<?php echo $data['baseLink'] . $data['page']['previousPage']; ?>" class="btn page-prev">
-                <?php echo $data['page']['previousPage']; ?>
-            </a>
-        <?php } ?>
-
-        <?php if ($data['page']['currentPage'] !== false) { ?>
-            <a class="btn disabled page-current">
-                <?php echo $data['page']['currentPage']; ?>
-            </a>
-        <?php } ?>
-
-        <?php if ($data['page']['nextPage'] !== false) { ?>
-            <a href="<?php echo $data['baseLink'] . $data['page']['nextPage']; ?>" class="btn page-next">
-                <?php echo $data['page']['nextPage']; ?>
-            </a>
-        <?php } ?>
-
-        <?php if ($data['page']['lastPage'] !== false) { ?>
-            <a href="<?php echo $data['baseLink'] . $data['page']['lastPage']; ?>" class="btn page-last">
-                <?php echo $data['page']['lastPage']; ?>
-            </a>
-        <?php } ?>
+            <tbody>
+                <?php foreach ($data['page']['results'] as $row) { ?>
+                    <tr>
+                        <?php foreach ($data['columns'] as $col => $name) { ?>
+                            <td><?php echo $row[$col]; ?></td>
+                        <?php } ?>
+                    </tr>            
+                <?php } ?>
+            </tbody>
+        </table>
     </div>
+
+    <?php if ($data['page']['showPagination']) { ?> 
+        <div class="pagination-links">
+            <?php if ($data['page']['firstPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $data['page']['firstPage']; ?>" class="btn page-first">
+                    <?php echo $data['page']['firstPage']; ?>
+                </a>
+            <?php } ?>
+
+            <?php if ($data['page']['previousPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $data['page']['previousPage']; ?>" class="btn page-prev">
+                    <?php echo $data['page']['previousPage']; ?>
+                </a>
+            <?php } ?>
+
+            <?php if ($data['page']['currentPage'] !== false) { ?>
+                <a class="btn disabled page-current">
+                    <?php echo $data['page']['currentPage']; ?>
+                </a>
+            <?php } ?>
+
+            <?php if ($data['page']['nextPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $data['page']['nextPage']; ?>" class="btn page-next">
+                    <?php echo $data['page']['nextPage']; ?>
+                </a>
+            <?php } ?>
+
+            <?php if ($data['page']['lastPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $data['page']['lastPage']; ?>" class="btn page-last">
+                    <?php echo $data['page']['lastPage']; ?>
+                </a>
+            <?php } ?>
+        </div>    
+    <?php } ?>
 
     <div class="pagination-total">
         Total: <?php echo $data['page']['count']; ?>

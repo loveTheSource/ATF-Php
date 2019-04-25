@@ -132,7 +132,8 @@ class Pagination {
             'currentPage' => $currentPage,
             'nextPage' => $nextPage,
             'previousPage' => $previousPage,
-            'offset' => $start
+            'offset' => $start,
+            'showPagination' => ($nextPage !== false || $previousPage !== false)
         ];
     }
 }
