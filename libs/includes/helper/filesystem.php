@@ -2,6 +2,8 @@
 
 namespace ATFApp\Helper;
 
+use ATFApp\Exceptions;
+
 class Filesystem {
 	
 	public function __construct() { }
@@ -30,16 +32,24 @@ class Filesystem {
 		return rmdir($dir);
 	}
 	
-	/**
-	 * get the file mime type
-	 * 
-	 * @param string $file
-	 * @return type (as string)
-	 */
-	public function getMimeType($file) {
-		$finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
-		$res = finfo_file($finfo, $file);
-		finfo_close($finfo);
-		return $res;
+
+	public function scanFolder($folder, $removeDots=true) {
+		try {
+			if (!is_dir($folder)) {
+				throw new Exceptions\Custom("folder not found: " . $folder);
+			} else {
+				$files = scandir($folder);
+				if (is_array($files)) {
+					if ($removeDots) {
+						$files = array_diff($files, ['..', '.']);
+					}
+					return $files;
+				} else {
+					throw new Exceptions\Custom("failed to scan folder: " . $folder);
+				}
+			}
+		} catch (\Throwable $e) {
+			throw $e;
+		}
 	}
 }
