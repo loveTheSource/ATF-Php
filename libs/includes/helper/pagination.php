@@ -19,6 +19,11 @@ class Pagination {
     private $checkboxFormOptions = [];
     private $checkboxFormSubmit = null;
 
+    // options in row
+    private $addOptions = false;
+    private $optionValueColumn = null;     // column value to append to link
+    private $optionBtns = [];               // ['link1' => 'text1', 'link2' => 'text2']
+    
 	public function __construct() { }
 
     /**
@@ -143,7 +148,10 @@ class Pagination {
             'checkboxFormOptions' => $this->checkboxFormOptions,
             'checkboxValueColumn' => $this->checkboxValueColumn,
             'checkboxFormAction' => $this->checkboxFormAction,
-            'checkboxFormSubmit' => $this->checkboxFormSubmit
+            'checkboxFormSubmit' => $this->checkboxFormSubmit,
+            'addOptions' => $this->addOptions,
+            'optionBtns' => $this->optionBtns,
+            'optionValueColumn' => $this->optionValueColumn
         ];
     }
 
@@ -153,5 +161,11 @@ class Pagination {
         $this->checkboxValueColumn = $checkboxValueColumn;
         $this->checkboxFormOptions = $formOptions;
         $this->checkboxFormSubmit = $submitBtnText;
+    }
+
+    public function setAddOptions($optionValueColumn, $optionBtns) {
+        $this->addOptions = true;
+        $this->optionValueColumn = $optionValueColumn;
+        $this->optionBtns = $optionBtns;
     }
 }

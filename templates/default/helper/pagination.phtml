@@ -43,6 +43,10 @@ $page = $data['page'];
                     <?php foreach ($data['columns'] as $col => $name) { ?>
                         <th><?php echo $name; ?></th>
                     <?php } ?>
+
+                    <?php if ($page['addOptions']) { ?> 
+                        <th></th>
+                    <?php } ?>
                 </tr>
             </thead>
 
@@ -63,6 +67,22 @@ $page = $data['page'];
 
                         <?php foreach ($data['columns'] as $col => $name) { ?>
                             <td><?php echo $row[$col]; ?></td>
+                        <?php } ?>
+
+                        <?php if ($page['addOptions']) { ?>
+                            <td class="options">
+                                <div class="row-options">
+                                    <select name="select-row-option" class="select-row-option">
+                                        <option value="" disabled="disabled" selected="selected">. . .</option>
+
+                                        <?php foreach ($page['optionBtns'] as $link => $text) { ?>
+                                            <option value="<?php echo $link . $row[$page['optionValueColumn']]; ?>">
+                                                <?php echo $text; ?>
+                                            </option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </td>
                         <?php } ?>
                     </tr>            
                 <?php } ?>
