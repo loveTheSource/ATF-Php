@@ -18,11 +18,28 @@
  *      $obj->includeTemplate('helper/pagination.phtml', $data);
  */
 ?>
+
+<?php 
+$page = $data['page'];
+?>
+
 <div class="helper-pagination">
     <div class="scroll-x">
+        <?php if ($page['addCheckboxes']) { ?>
+            <form class="form-default" action="<?php echo $page['checkboxFormAction']; ?>" method="POST">
+            <input type="hidden" name="_CSRF" value="<?php echo $obj->getCsrfToken(); ?>" />
+        <?php } ?>
+
         <table>
             <thead>
                 <tr>
+                    <?php if ($page['addCheckboxes']) { ?>
+                        <th>
+                            <input class="pagination-checkbox-all" type="checkbox" id="paginationids-all" name="paginationids-all" value="all" />
+                            <label for="paginationids-all"></label>
+                        </th>
+                    <?php } ?>
+
                     <?php foreach ($data['columns'] as $col => $name) { ?>
                         <th><?php echo $name; ?></th>
                     <?php } ?>
@@ -30,8 +47,20 @@
             </thead>
 
             <tbody>
-                <?php foreach ($data['page']['results'] as $row) { ?>
+                <?php foreach ($page['results'] as $row) { ?>
                     <tr>
+                        <?php if ($page['addCheckboxes']) { ?>
+                            <td>
+                                <input 
+                                    class="pagination-checkbox" 
+                                    type="checkbox" 
+                                    name="paginationids[]" 
+                                    value="<?php echo $row[$page['checkboxValueColumn']];?>" 
+                                    id="cb-<?php echo $row[$page['checkboxValueColumn']];?>" />
+                                <label for="cb-<?php echo $row[$page['checkboxValueColumn']];?>"></label>
+                            </td>
+                        <?php } ?>
+
                         <?php foreach ($data['columns'] as $col => $name) { ?>
                             <td><?php echo $row[$col]; ?></td>
                         <?php } ?>
@@ -39,43 +68,55 @@
                 <?php } ?>
             </tbody>
         </table>
+
+        <?php if ($page['addCheckboxes']) { ?>
+            <select name="multi-option">
+                <option value="" disabled selected>. . .</option>
+                <?php foreach ($page['checkboxFormOptions'] as $key => $optionText) { ?>
+                    <option value="<?php echo $key; ?>"><?php echo $optionText; ?></option>
+                <?php } ?>
+            </select>
+
+            <button type="submit" class="btn pagination-multi-submit"><?php echo $page['checkboxFormSubmit']; ?></button>
+            </form>
+        <?php } ?>
     </div>
 
-    <?php if ($data['page']['showPagination']) { ?> 
+    <?php if ($page['showPagination']) { ?> 
         <div class="pagination-links">
-            <?php if ($data['page']['firstPage'] !== false) { ?>
-                <a href="<?php echo $data['baseLink'] . $data['page']['firstPage']; ?>" class="btn page-first">
-                    <?php echo $data['page']['firstPage']; ?>
+            <?php if ($page['firstPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $page['firstPage']; ?>" class="btn page-first">
+                    <?php echo $page['firstPage']; ?>
                 </a>
             <?php } ?>
 
-            <?php if ($data['page']['previousPage'] !== false) { ?>
-                <a href="<?php echo $data['baseLink'] . $data['page']['previousPage']; ?>" class="btn page-prev">
-                    <?php echo $data['page']['previousPage']; ?>
+            <?php if ($page['previousPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $page['previousPage']; ?>" class="btn page-prev">
+                    <?php echo $page['previousPage']; ?>
                 </a>
             <?php } ?>
 
-            <?php if ($data['page']['currentPage'] !== false) { ?>
+            <?php if ($page['currentPage'] !== false) { ?>
                 <a class="btn disabled page-current">
-                    <?php echo $data['page']['currentPage']; ?>
+                    <?php echo $page['currentPage']; ?>
                 </a>
             <?php } ?>
 
-            <?php if ($data['page']['nextPage'] !== false) { ?>
-                <a href="<?php echo $data['baseLink'] . $data['page']['nextPage']; ?>" class="btn page-next">
-                    <?php echo $data['page']['nextPage']; ?>
+            <?php if ($page['nextPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $page['nextPage']; ?>" class="btn page-next">
+                    <?php echo $page['nextPage']; ?>
                 </a>
             <?php } ?>
 
-            <?php if ($data['page']['lastPage'] !== false) { ?>
-                <a href="<?php echo $data['baseLink'] . $data['page']['lastPage']; ?>" class="btn page-last">
-                    <?php echo $data['page']['lastPage']; ?>
+            <?php if ($page['lastPage'] !== false) { ?>
+                <a href="<?php echo $data['baseLink'] . $page['lastPage']; ?>" class="btn page-last">
+                    <?php echo $page['lastPage']; ?>
                 </a>
             <?php } ?>
         </div>    
-    <?php } ?>
+    <?php } ?> 
 
     <div class="pagination-total">
-        Total: <?php echo $data['page']['count']; ?>
+        Total: <?php echo $page['count']; ?>
     </div>
 </div>

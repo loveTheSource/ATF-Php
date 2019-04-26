@@ -156,14 +156,18 @@ class TemplateFunctions {
 		$templateObj = Core\Factory::getTemplateObj();
 		
 		$templateFile = $templateObj->getTemplatePath() . $template;
-		
 		if ($templateObj->templateFileExists($templateFile)) {
 			if (is_array($data)) {
 				$templateObj->setDataArray($data);
 			}
-				
+
 			$templateObj->renderFile($templateFile, true);
 		}
+	}
+
+	public function getCsrfToken() {
+		$tokenHelper = new Helper\CsrfTokens();
+		return $tokenHelper->getNewToken();
 	}
 }
 

@@ -12,6 +12,13 @@ class Pagination {
     private $orderCols = [];
     private $limit = null;
 
+    // checkboxes in form
+    private $addCheckboxes = false;
+    private $checkboxValueColumn = null;
+    private $checkboxFormAction = null;
+    private $checkboxFormOptions = [];
+    private $checkboxFormSubmit = null;
+
 	public function __construct() { }
 
     /**
@@ -131,7 +138,20 @@ class Pagination {
             'nextPage' => $nextPage,
             'previousPage' => $previousPage,
             'offset' => $start,
-            'showPagination' => ($nextPage !== false || $previousPage !== false)
+            'showPagination' => ($nextPage !== false || $previousPage !== false),
+            'addCheckboxes' => $this->addCheckboxes,
+            'checkboxFormOptions' => $this->checkboxFormOptions,
+            'checkboxValueColumn' => $this->checkboxValueColumn,
+            'checkboxFormAction' => $this->checkboxFormAction,
+            'checkboxFormSubmit' => $this->checkboxFormSubmit
         ];
+    }
+
+    public function setAddCheckboxes($checkboxFormAction, $checkboxValueColumn, $formOptions, $submitBtnText) {
+        $this->addCheckboxes = true;
+        $this->checkboxFormAction = $checkboxFormAction;
+        $this->checkboxValueColumn = $checkboxValueColumn;
+        $this->checkboxFormOptions = $formOptions;
+        $this->checkboxFormSubmit = $submitBtnText;
     }
 }
