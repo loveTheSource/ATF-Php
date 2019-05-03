@@ -10,13 +10,31 @@ class SqlLog extends SimpleModel {
 	protected $tablePrimaryKeys = array('id');
 	// table columns
 	protected $tableColumns = [
-		'id',
-		'user_id',
-		'remote_addr',
-		'query',
-		'method',
-		'timestamp',
-		'params'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'user_id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'remote_addr' => [
+			'type' => 'string',
+			'length' => 64
+		],
+		'query' => [
+			'type' => 'text'
+		],
+		'method' => [
+			'type' => 'string',
+			'length' => 16
+		],
+		'timestamp' => [
+			'type' => 'timestamp'
+		],
+		'params' => [
+			'type' => 'text'
+		]
 	];
 	protected $tableColumnsProtected = ['timestamp'];
     

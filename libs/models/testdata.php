@@ -10,11 +10,26 @@ class Testdata extends SimpleModel {
 	protected $tablePrimaryKeys = ['id'];
 	// table columns
 	protected $tableColumns = [
-		'id',
-		'name', 
-		'random',
-		'data',
-		'user_id'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'name' => [
+			'type' => 'string',
+			'length' => 32
+		], 
+		'random' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'data' => [
+			'type' => 'int',
+			'length' => 128
+		],
+		'user_id' => [
+			'type' => 'int',
+			'length' => 11
+		]
 	];
 	protected $tableForeignKeys = [
 		'user_id' => [

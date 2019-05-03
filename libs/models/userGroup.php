@@ -10,9 +10,18 @@ class UserGroup extends SimpleModel {
 	protected $tablePrimaryKeys = ['id'];
 	// table columns
 	protected $tableColumns = [
-		'id',
-		'user_id',
-		'group_id'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'user_id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'group_id' => [
+			'type' => 'int',
+			'length' => 11
+		]
 	];
 	
 	public function __construct() {	}

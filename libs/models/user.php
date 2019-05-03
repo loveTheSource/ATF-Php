@@ -12,13 +12,32 @@ class User extends SimpleModel {
 	protected $tablePrimaryKeys = ['id'];
 	// table columns
 	protected $tableColumns = [
-		'id',
-		'login',
-		'password',
-		'last_login',
-		'user_since',
-		'active',
-		'name'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'login' => [
+			'type' => 'string',
+			'length' => 32
+		],
+		'password' => [
+			'type' => 'string',
+			'length' => 64
+		],
+		'name' => [
+			'type' => 'string',
+			'length' => 32
+		],
+		'active' => [
+			'type' => 'int',
+			'length' => 1
+		],
+		'last_login' => [
+			'type' => 'timestamp'
+		],
+		'user_since' => [
+			'type' => 'timestamp'
+		]
 	];
 	protected $tableColumnsProtected = ['user_since'];
 	protected $tableRelations = [

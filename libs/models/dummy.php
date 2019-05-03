@@ -30,11 +30,28 @@ class Dummy extends SimpleModel {
 	 * table columns
 	 */
 	protected $tableColumns = [
-		'id',
-		'email',
-		'password',
-		'last_login',
-		'FK_column'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'email' => [
+			'type' => 'string',
+			'length' => 32
+		],
+		'password' => [
+			'type' => 'string',
+			'length' => 64
+		],
+		'profile' => [
+			'type' => 'text'
+		],
+		'is_admin' => [
+			'type' => 'int',
+			'length' => 1
+		],
+		'last_login' => [
+			'type' => 'timestamp'
+		]
 	];
 	
 	/** 

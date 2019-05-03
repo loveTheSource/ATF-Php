@@ -10,9 +10,18 @@ class Group extends SimpleModel {
 	protected $tablePrimaryKeys = ['id'];
 	// table columns
 	protected $tableColumns = [
-		'id',
-		'groupname', 
-		'active'
+		'id' => [
+			'type' => 'int',
+			'length' => 11
+		],
+		'groupname' => [
+			'type' => 'string',
+			'length' => 32
+		], 
+		'active' => [
+			'type' => 'int',
+			'length' => 1
+		]
 	];
 	
 	public function __construct() {	}
