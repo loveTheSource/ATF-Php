@@ -15,7 +15,6 @@ require_once 'baseModel.php';
 abstract class SimpleModel extends BaseModel {
 	
 	protected $dbConnection = ProjectConstants::DB_DEFAULT_CONNECTION;
-	protected $tableColumnsProtected = [];
 	protected $tableForeignKeys = [];
 	protected $tableRelations = [];
 
@@ -48,7 +47,7 @@ abstract class SimpleModel extends BaseModel {
 				if ($c != 0) $query .= ", ";
 				$colName = $col;
 				$query .= " " . $colName . " = :" . $colName;
-				$params[$colName] = $this->$col;
+				$params[$colName] = $this->fitValueToColumn($col, $this->$col);
 				$c++;
 			}
 		}
@@ -57,10 +56,10 @@ abstract class SimpleModel extends BaseModel {
 		foreach ($this->getPrimaryKeyColumns() AS $i => $col) {
 			if ($i != 0) $query .= " AND ";
 			$query .= ' ' . $col . ' = :' . $col;
-			$params[$col] = $this->$col;
+			$params[$col] = $this->fitValueToColumn($col, $this->$col);
 		}
 		$query .= "; ";
-		
+
 		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
 		$res = $statementHandler->execute($params);
 		if ($res !== false) {
@@ -87,14 +86,16 @@ abstract class SimpleModel extends BaseModel {
 		
 		$c = 0;
 		foreach ($columns AS $i => $col) {
-			if ($c != 0) {
-				$queryCols .= ', ';
-				$queryVals .= ', ';
+			if (property_exists($this, $col)) {
+				if ($c != 0) {
+					$queryCols .= ', ';
+					$queryVals .= ', ';
+				}
+				$queryCols .= ' ' . $col;
+				$queryData[$col] = $this->fitValueToColumn($col, $this->$col);
+				$queryVals .= ' :' . $col;
+				$c++;
 			}
-			$queryCols .= ' ' . $col;
-			$queryData[$col] = $this->$col;
-			$queryVals .= ' :' . $col;
-			$c++;
 		}
 		
 		$queryCols .= ') ';
@@ -359,7 +360,7 @@ abstract class SimpleModel extends BaseModel {
 			$c = 0;
 			foreach ($orderBy AS $col => $sort) {
 				$col = trim(preg_replace('/[^\w\d\_\-]/si', '', $col)); //remove all illegal chars
-				if (in_array($col, $this->tableColumns) && property_exists($this, $col)) {
+				if (array_key_exists($col, $this->tableColumns) && property_exists($this, $col)) {
 					if ($c != 0) {
 						$query .= ", ";
 					}

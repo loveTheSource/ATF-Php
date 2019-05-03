@@ -14,6 +14,8 @@ class DbUpdater {
 	private $table = null;
 	private $updateValues = [];
 	private $wheres = [];
+	// optional
+	private $modelClass = null;
 	
 	private $operators = ['<', '<=', '=', '>=', '>'];
 	
@@ -34,9 +36,10 @@ class DbUpdater {
 	 * @param string $table 
 	 * @return \ATFApp\Core\DbUpdater
 	 */
-	public function update($table) {
+	public function update($table, $modelClass=null) {
 		$this->table = $table;
-		
+		$this->modelClass = $modelClass;
+
 		return $this;
 	}
 	
@@ -54,12 +57,12 @@ class DbUpdater {
 	}
 	
 	/**
-	 * set (dataArray)
+	 * set array of cols [col => value, ...]
 	 * 
 	 * @param array $dataArray
 	 * @return \ATFApp\Core\DbUpdater
 	 */
-	public function setMulti(Array $dataArray) {
+	public function setArray(Array $dataArray) {
 		foreach($dataArray as $col => $value) {
 			$this->set($col, $value);
 		}
@@ -123,10 +126,17 @@ class DbUpdater {
 		$query = "UPDATE " . $this->table . " SET ";
 		$params = [];
 
+		if ($this->modelClass) {
+			$class = '\ATFApp\Models\\' . $this->modelClass;
+			$modelInstance = new $class();
+			foreach ($this->updateValues as $col => $value) {
+				$this->updateValues[$col] = $modelInstance->fitValueToColumn($col, $value);
+			}
+		}
+
 		foreach ($this->updateValues as $col => $value) {
 			$query .= " " . $col . " = :" . $col;
 			$params[$col] = $value;
-	
 		}
 		
 		foreach ($this->wheres as $i => $w) {

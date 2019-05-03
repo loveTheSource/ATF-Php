@@ -12,8 +12,10 @@ use ATFApp\Core as Core;
 abstract class BaseModel {
 	
 	public function __set($key, $value) {
-		if (in_array($key, $this->tableColumns)) {
+		if (array_key_exists($key, $this->tableColumns)) {
 			$this->$key = $value;
+		} else {
+			throw new Exceptions\Db('Column "' . $key . '" is invalid in table: ' . $this->table);
 		}
 	}
 
@@ -73,16 +75,41 @@ abstract class BaseModel {
 	
 	public function getUpdateColumns() {
 		$updateCols = [];
-		foreach ($this->tableColumns as $col) {
-			if (is_array($this->tableColumnsProtected) && !in_array($col, $this->tableColumnsProtected)) {
-				if (property_exists($this, $col)) {
-					$updateCols[] = $col;
-				}
-			}
+		foreach ($this->tableColumns as $col => $info) {
+			$updateCols[] = $col;
 		}
 		return $updateCols;
 	}
 	
+	public function fitValueToColumn($col, $value) {
+		$colSettings = $this->tableColumns[$col];
+		$fixed = null;
+
+		switch ($colSettings['type']) {
+			case 'string':
+				$fixed = substr((string)$value, 0, $colSettings['length']);
+				break;
+
+			case 'int':
+				$fixed = (int)(substr($value, 0, $colSettings['length']));
+				break;
+
+			case 'timestamp':
+				if (preg_match('/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/', $value)) {
+					$fixed = $value;
+				} elseif (in_array(strtoupper($value), ['NOW()', 'CURRENT_TIMESTAMP()'])) {
+					$fixed = strtoupper($value);
+				}
+				break;
+
+			case 'text':	// text column
+			default: 	// plus all others
+				$fixed = $value;
+		}
+
+		return $fixed;
+	}
+
 	/**
 	 * get pdo db object
 	 *
