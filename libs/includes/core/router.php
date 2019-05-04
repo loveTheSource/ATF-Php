@@ -75,7 +75,7 @@ class Router {
 		$conf = $this->getCurrentRouteConfig($route);
 
 		if (array_key_exists('routeparams', $conf)) {
-			$this->extractRouteParams($requestPath, $conf['routeparams']);
+			$this->extractRouteParams($requestPath, $conf);
 		}
 	}
 
@@ -187,15 +187,80 @@ class Router {
 	 * @param string $requestPath
 	 * @param array $expectedParams
 	 */
-	private function extractRouteParams($requestPath, $expectedParams) {
+	private function extractRouteParams($requestPath, $conf) {
 		if (substr($requestPath, 0, 1) === "/") {
 			$requestPath = substr($requestPath, 1);
 		}
-		$pathArray = explode('/', $requestPath);
-		$pathLength = count($pathArray);
-		foreach(array_reverse($expectedParams) as $i => $paramName) {
-			Core\Request::setParamRoute($paramName, $pathArray[$pathLength - ($i + 1)]);
+
+		$routeParamsArray = $conf['routeparams'];
+		$routeParentsArray = $conf['parents'];
+		$requestPathArray = explode('/', $requestPath);
+		$routeParamsFound = []; // [$key => $value, ...]
+
+		// echo '<pre>';
+		// var_dump("req path", $requestPath);
+		// var_dump('route param arr: ', $routeParamsArray);
+		// var_dump("route parents array: ", $routeParentsArray); 
+		// var_dump('request path array: ', $requestPathArray);
+		// var_dump('route self: '. $conf['self']);
+		// echo '</pre>';
+
+		// search in self
+		foreach ($routeParamsArray as $paramName) {
+			if (strpos($conf['self'], ':' . $paramName) !== false) {
+				$tmpArr = explode('/', $conf['self']);
+				$tmpCounter = 0;
+				foreach ($tmpArr as $tmpElem) {
+					if ($tmpElem === ':' . $paramName) {
+						$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + count($routeParentsArray) - 1];
+					}
+					$tmpCounter++;
+				}
+			}	
 		}
+
+		// search in parents
+		if (count($routeParamsFound) < count($routeParamsArray)) {
+			foreach ($routeParamsArray as $paramName) {
+				// check if already found before
+				if (!array_key_exists($paramName, $routeParamsFound)) {
+	// echo '<br/>'.$paramName;
+					$tmpCounter = 0;
+					foreach ($routeParentsArray as $parent) {
+	// echo '<br/>- '.$parent;
+						if (strpos($parent, ':' . $paramName) !== false) {
+							// param found in parent
+							if (substr($parent, 0, 1) === "/") {
+								$parent = substr($parent, 1);
+							}				
+							$tmpArr = explode('/', $parent);
+							$tmpCounter2 = 0;
+							foreach ($tmpArr as $tmpElem) {
+	// echo '<br/>-- '.$tmpElem .'/'.$tmpCounter2;
+								if ($tmpElem === ':' . $paramName) {
+									$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + $tmpCounter2];
+								}
+								$tmpCounter2++;
+							}
+						}
+						$tmpCounter++;
+					}	
+				}
+			}
+		}
+
+		foreach ($routeParamsFound as $key => $val) {
+			Core\Request::setParamRoute($key, $val);
+		}
+
+		// if (substr($requestPath, 0, 1) === "/") {
+		// 	$requestPath = substr($requestPath, 1);
+		// }
+		// $pathArray = explode('/', $requestPath);
+		// $pathLength = count($pathArray);
+		// foreach(array_reverse($expectedParams) as $i => $paramName) {
+		// 	Core\Request::setParamRoute($paramName, $pathArray[$pathLength - ($i + 1)]);
+		// }
 	}
 
 	/**
@@ -232,7 +297,7 @@ class Router {
 	 * @param string $routeKey
 	 * @param array $parents
 	 */
-	private function extractSubRoutes(&$routeConf, $routeKey, array $parents=[]) {
+	private function extractSubRoutes(&$routeConf, $routeKey, array $parents=[], array $parentsRouteParams=[]) {
 		foreach ($this->routeKeysRequired as $requiredKey) {
 			if (!array_key_exists($requiredKey, $routeConf)) {
 				throw new Exceptions\Custom('invalid route config. missing "' . $requiredKey . '" for route: ' . $routeKey);
@@ -246,17 +311,19 @@ class Router {
 					$param = substr($param, 0, -1);
 				}
 				$routeParams[] = $param;
+				$parentsRouteParams[] = $param;
 			}
 		}
-		$routeConf['routeparams'] = $routeParams;
+		$routeConf['routeparams'] = $parentsRouteParams;
 
 		$routeConf['parents'] = $parents;
+		$routeConf['self'] = $routeKey;
 
 		if (array_key_exists('subroutes', $routeConf)) {
 			foreach($routeConf['subroutes'] as $subKey => $subConf) {
 				$tmpParents = $parents;
 				$tmpParents[] = $routeKey;
-				$this->extractSubRoutes($routeConf['subroutes'][$subKey], $subKey, $tmpParents);
+				$this->extractSubRoutes($routeConf['subroutes'][$subKey], $subKey, $tmpParents, $parentsRouteParams);
 			}	
 		}
 	}
