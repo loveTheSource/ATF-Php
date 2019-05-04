@@ -135,7 +135,7 @@ abstract class SimpleModel extends BaseModel {
 			if ($i !== 0) {
 				$query .= ' AND ';
 			}
-			$queryParams[$col] = $this->$col;
+			$queryParams[$col] = $this->fitValueToColumn($col, $this->$col);
 			$query .= ' ' . $col . ' = :'.$col;
 		}
 		$query .= ';';
@@ -190,7 +190,7 @@ abstract class SimpleModel extends BaseModel {
 				$query .= 'AND ';
 			}
 			$query .= ' ' . $k . ' = :' . $k;
-			$params[$k] = $keys[$k];
+			$params[$k] = $this->fitValueToColumn($k, $keys[$k]);;
 			$keysCounter++;
 		}
 		$query .= "; ";
@@ -255,7 +255,7 @@ abstract class SimpleModel extends BaseModel {
 				$query .= ' AND ';
 			}
 			$query .= ' ' . $col . ' = :' . $col;
-			$params[$col] = $val;
+			$params[$col] = $this->fitValueToColumn($col, $val);
 			$keysCounter++;
 		}
 		$query .= "; ";
