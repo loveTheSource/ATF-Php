@@ -197,14 +197,6 @@ class Router {
 		$requestPathArray = explode('/', $requestPath);
 		$routeParamsFound = []; // [$key => $value, ...]
 
-		// echo '<pre>';
-		// var_dump("req path", $requestPath);
-		// var_dump('route param arr: ', $routeParamsArray);
-		// var_dump("route parents array: ", $routeParentsArray); 
-		// var_dump('request path array: ', $requestPathArray);
-		// var_dump('route self: '. $conf['self']);
-		// echo '</pre>';
-
 		// search in self
 		foreach ($routeParamsArray as $paramName) {
 			if (strpos($conf['self'], ':' . $paramName) !== false) {
@@ -224,10 +216,8 @@ class Router {
 			foreach ($routeParamsArray as $paramName) {
 				// check if already found before
 				if (!array_key_exists($paramName, $routeParamsFound)) {
-	// echo '<br/>'.$paramName;
 					$tmpCounter = 0;
 					foreach ($routeParentsArray as $parent) {
-	// echo '<br/>- '.$parent;
 						if (strpos($parent, ':' . $paramName) !== false) {
 							// param found in parent
 							if (substr($parent, 0, 1) === "/") {
@@ -236,7 +226,6 @@ class Router {
 							$tmpArr = explode('/', $parent);
 							$tmpCounter2 = 0;
 							foreach ($tmpArr as $tmpElem) {
-	// echo '<br/>-- '.$tmpElem .'/'.$tmpCounter2;
 								if ($tmpElem === ':' . $paramName) {
 									$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + $tmpCounter2];
 								}
@@ -252,15 +241,6 @@ class Router {
 		foreach ($routeParamsFound as $key => $val) {
 			Core\Request::setParamRoute($key, $val);
 		}
-
-		// if (substr($requestPath, 0, 1) === "/") {
-		// 	$requestPath = substr($requestPath, 1);
-		// }
-		// $pathArray = explode('/', $requestPath);
-		// $pathLength = count($pathArray);
-		// foreach(array_reverse($expectedParams) as $i => $paramName) {
-		// 	Core\Request::setParamRoute($paramName, $pathArray[$pathLength - ($i + 1)]);
-		// }
 	}
 
 	/**
