@@ -74,6 +74,24 @@ class Format {
 	}
 	
 	/**
+	 * cleanup text:
+	 * 
+	 * characters, numbers, space,
+	 * _-+=*&()<>\.,:;!?"'#
+	 * characters with acents etc
+	 * 
+	 * @param string $text
+	 * @return string
+	 */
+	public static function cleanupTextPlus($text) {
+		// no idea why this char (§) causes problems, when not deleted before...
+		$text = str_replace('§', '', $text);
+		$allowedChars = '/[^\w\d\s\_\-\+\=\*\&\(\)\<\>\/\.\,\:\;\!\?\"\'\#ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǺǻǼǽǾǿ ]/si';
+		$text = trim(preg_replace($allowedChars, '', $text));
+		return $text;
+	}
+
+	/**
 	 * cleanupText
 	 * removes all illegal characters (e.g. for nice url names)
 	 * 
