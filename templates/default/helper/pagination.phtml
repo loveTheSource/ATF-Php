@@ -72,15 +72,14 @@ $page = $data['page'];
                         <?php if ($page['addOptions']) { ?>
                             <td class="options">
                                 <div class="row-options">
-                                    <select name="select-row-option" class="select-row-option">
-                                        <option value="" disabled="disabled" selected="selected">. . .</option>
-
+                                    <div class="row-options-trigger"></div>
+                                    <div class="options-container">
                                         <?php foreach ($page['optionBtns'] as $link => $text) { ?>
-                                            <option value="<?php echo $link . $row[$page['optionValueColumn']]; ?>">
+                                            <a class="btn" href="<?php echo $link . $row[$page['optionValueColumn']]; ?>">
                                                 <?php echo $text; ?>
-                                            </option>
+                                            </a>
                                         <?php } ?>
-                                    </select>
+                                    </div>
                                 </div>
                             </td>
                         <?php } ?>
@@ -90,7 +89,7 @@ $page = $data['page'];
         </table>
 
         <?php if ($page['addCheckboxes']) { ?>
-            <select name="multi-option">
+            <select name="multi-option" class="btn">
                 <option value="" disabled selected>. . .</option>
                 <?php foreach ($page['checkboxFormOptions'] as $key => $optionText) { ?>
                     <option value="<?php echo $key; ?>"><?php echo $optionText; ?></option>
