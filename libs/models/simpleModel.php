@@ -232,10 +232,13 @@ abstract class SimpleModel extends BaseModel {
 	 * @throws Exception\Db
 	 * @return boolean|array false or an array of models 
 	 */
-	public function selectByColumns(Array $columnValues, $ignoreCache=false) {
+	public function selectByColumns(Array $columnValues, $ignoreCache=false, $order = []) {
 		$cacheKey = 'selByCols_' . $this->getTable() . '_';
 		foreach ($columnValues AS $col => $val) {
 			$cacheKey .= $col . '=' . $val . '-';
+		}
+		foreach ($order AS $col => $val) {
+			$cacheKey .= $col . '=O=' . $val . '-';
 		}
 		if (!$ignoreCache && ProjectConstants::MODELS_QUERY_CACHE) {
 			$cacheResult = $this->getFromQueryCache($cacheKey);
@@ -258,6 +261,20 @@ abstract class SimpleModel extends BaseModel {
 			$params[$col] = $this->fitValueToColumn($col, $val);
 			$keysCounter++;
 		}
+
+		if (count($order) >= 1) {
+			$query .= " ORDER BY ";
+			$orderString = '';
+			foreach ($order as $col => $val) {
+				$col = trim(preg_replace('/[^\w\d\_\-]/', '', $col));
+				if ($orderString !== '') {
+					$orderString .= ', ';
+				}
+				$sort = (strtoupper($val) === "ASC") ? ' ASC ' : ' DESC ';
+				$query .= $col . ' ' . $sort;
+			}
+		}
+
 		$query .= "; ";
 
 		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
@@ -359,7 +376,7 @@ abstract class SimpleModel extends BaseModel {
 			$query .= " ORDER BY ";
 			$c = 0;
 			foreach ($orderBy AS $col => $sort) {
-				$col = trim(preg_replace('/[^\w\d\_\-]/si', '', $col)); //remove all illegal chars
+				$col = trim(preg_replace('/[^\w\d\_\-]/', '', $col)); //remove all illegal chars
 				if (array_key_exists($col, $this->tableColumns) && property_exists($this, $col)) {
 					if ($c != 0) {
 						$query .= ", ";
