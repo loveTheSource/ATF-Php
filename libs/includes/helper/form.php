@@ -24,7 +24,7 @@ class Form extends FormRenderer {
 	private $novalidate = false;
 
 	protected $formErrors = [];					// form errors
-	protected $formElements = [];				// array of form elements
+	public $formElements = [];				// array of form elements
 	
 	private $formOnSubmit = null;				// javascript event handler on form submit
 	private $formFocus = null;					// form element to set the focus to
@@ -125,9 +125,21 @@ class Form extends FormRenderer {
 				'readonly' => $readonly,
 				'eventhandler' => $eventhandler
 		);
-		
 	}
 	
+	/**
+	 * add a simple editor 
+	 */
+	public function addSimpleEditor($name, $label=null, $preselect=null) {
+		$this->formElements[$name] = array(
+			'type' => 'simpleEditor',
+			'group' => $this->elementGroup,
+			'label' => $label,
+			'preselect' => $preselect
+		);
+	}
+
+
 	/**
 	 * add a headline between form elements
 	 * 

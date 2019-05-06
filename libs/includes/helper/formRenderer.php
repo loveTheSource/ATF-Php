@@ -40,7 +40,7 @@ abstract class FormRenderer {
 		$formHtml .= $this->renderAllElements();
 		
 		$formHtml .= '</form>'; // close form
-		
+
 		if ($return) {
 			return $formHtml;
 		} else {
@@ -200,6 +200,25 @@ abstract class FormRenderer {
 		return array(
 				'element' => $elementHtml, 
 				'label' => $label
+		);
+	}
+
+	private function renderSimpleEditor($elemName, $data) {
+		// element id
+		$id = $this->getElemId($elemName);
+		
+		// label html 
+		$label = $this->getElemLabel($id, $data['label']);
+
+		$value = $data['preselect'];
+
+		$elementHtml = '<textarea class="simple-editor" name="' . $elemName . '" id="' . $id . '" >';
+		$elementHtml .= $value;
+		$elementHtml .= '</textarea>';
+		
+		return array(
+			'element' => $elementHtml, 
+			'label' => $label
 		);
 	}
 	
@@ -454,7 +473,7 @@ abstract class FormRenderer {
 		
 		// label html 
 		$label = $this->getElemLabel($id, $data['label']);
-		
+
 		// element html
 		$preselect = $data['preselect'];
 		$readonly = $this->getReadonlyParam($data['readonly']);
@@ -633,4 +652,6 @@ abstract class FormRenderer {
 		}
 		return '';
 	}
+
+
 }
