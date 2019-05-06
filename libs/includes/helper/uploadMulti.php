@@ -5,8 +5,8 @@ namespace ATFApp\Helper;
 use ATFApp\Helper;
 
 /**
- * 'handleUpload' handles multiple post file uploads
- * (in one or more file input single)
+ * 'handleUpload' handles multiple file post uploads
+ * (in one file input multiple)
  * in 4 steps:
  * 
  * - check if file was uploaded successfully
@@ -15,7 +15,7 @@ use ATFApp\Helper;
  * - move file to destination folder setting the final name
  * - cleanup (TODO)
  */
-class Upload {
+class UploadMulti {
 
     private $filesizeMin = 128; // bytes
     private $filesizeMax = 1024 * 1024; // 1MB
@@ -27,7 +27,8 @@ class Upload {
     private $imageHeightMin = null;
     private $imageHeightMax = null;
 
-    private $files = [];    // ['file_id' => 'filename', 'file2_id' => 'filename2'] filenames without extension
+    private $fileInputId = null;
+    private $filePrefix = '';
     private $filesData = [];
     private $succeededFiles = [];
     private $allowedTypes = [];
@@ -42,16 +43,18 @@ class Upload {
         $this->imageHelper = new Helper\Image();
     }
 
-    public function handleUpload($files, $destination) {
-        $this->files = $files;
+    public function handleUpload($fileInputId, $destination, $prefix='') {
+        $this->fileInputId = $fileInputId;
         $this->destination = $destination;
+        $this->filePrefix = $prefix;
 
         $this->checkAndHandleAll();
 
         return [
             'success' => empty($this->errors),
             'errors' => $this->errors,
-            'succeededFiles' => $this->succeededFiles
+            'succeededFiles' => $this->succeededFiles,
+            'filesData' => $this->filesData
         ];
     }
 
@@ -97,6 +100,15 @@ class Upload {
     }
 
     private function moveToDestination() {
+        try {
+            if (!is_dir($this->destination)) {
+                // try to create missing dir
+                mkdir($this->destination);
+            }    
+        } catch(\Throwable $e) {
+            $this->addError($this->fileInputId, $e->getMessage(), false, true);
+        }
+
         foreach ($this->filesData as $id => $data) {
             try {
                 if ($data['uploadSuccess'] && !array_key_exists($id, $this->errors)) {
@@ -107,7 +119,11 @@ class Upload {
                     if (!$result) {
                         $this->addError($id, 'unable to move file "' . $quarantineFile . '" to final destination: ' . $destinationFilePath);
                     } else {
-                        $this->succeededFiles[$id] = $data['desiredFilename'] . '.' . $data['extension'];
+                        $this->succeededFiles[$id] = [
+                            'filename' => $data['desiredFilename'],
+                            'extension' => $data['extension'],
+                            'originalName' => $data['originalName']
+                        ];
                     }
                 }
             } catch (\Throwable $e) {
@@ -119,8 +135,14 @@ class Upload {
     private function cleanup() {
         foreach ($this->filesData as $id => $data) {
             try {
+                foreach ($_FILES[$this->fileInputId]['tmp_name'] as $tmpFile) {
+                    if (is_file($tmpFile)) {
+                        unlink($tmpFile);
+                    }
+                }
                 if (!array_key_exists($id, $this->succeededFiles)) {
                     // TODO cleanup
+                    // delete from quarantine
                 }
             } catch (\Throwable $e) {
                 $this->addError($id, $e->getMessage(), false, true);
@@ -163,41 +185,63 @@ class Upload {
         return md5(time()) . md5(uniqid());
     }
 
+    private function getUniqueName($addPrefix=false) {
+        $unique = md5(time() . uniqid());
+        if ($addPrefix && !empty($this->filePrefix)) {
+            return $this->filePrefix . '-' . $unique;
+        } else {
+            return $unique;
+        }
+    }
+
     private function checkForUploadSuccess() {
-        foreach ($this->files as $id => $filename) {
-            try {
-                if (!isset($_FILES[$id])) {
-                    $this->addError($id, "file_upload_failed", true);
-                    $this->filesData[$id] = [
-                        'uploadSuccess' => false
-                    ];
-                } else {
-                    $pathInfo = pathinfo($_FILES[$id]['name']);
+        try {
+            if (!isset($_FILES[$this->fileInputId])) {
+                $this->addError($this->fileInputId, "file_upload_failed", true);
+                $this->filesData[$this->fileInputId] = [];
+                $this->filesData[$this->fileInputId][0] = ['uploadSuccess' => false ];
+            } else {
+                $total = count($_FILES[$this->fileInputId]['name']);
+                $uploadIndex = 0;
+                for ($i=0; $i<$total; $i++) {
+                    $fileKey = $this->fileInputId.'-'.$i;
+
+                    if (empty($_FILES[$this->fileInputId]['name'][$i]) || empty(Format::cleanupFilename($_FILES[$this->fileInputId]['name'][$i]))) {
+                        break;
+                    }
+                    if (empty($_FILES[$this->fileInputId]['tmp_name'][$i])) {
+                        break;
+                    }
+
+                    $uploadIndex++;
+
+                    $pathInfo = pathinfo($_FILES[$this->fileInputId]['name'][$i]);
                     if (empty($pathInfo['filename'])) {
-                        $this->addError($id, "file_invalid", true);
+                        $this->addError($fileKey, "file_invalid", true);
                         $nameWithoutExt = '';
                     } else {
                         $nameWithoutExt = $pathInfo['filename'];
                     }
                     if (empty($pathInfo['extension'])) {
-                        $this->addError($id, "file_invalid_ext", true);
+                        $this->addError($fileKey, "file_invalid_ext", true);
                         $extOnly = '';
                     } else {
                         $extOnly = $pathInfo['extension'];
                     }
-    
-                    $this->filesData[$id] = [
-                        'originalName' => Format::cleanupFilename($_FILES[$id]['name'], true),
-                        'tmpName' => $_FILES[$id]['tmp_name'],
+
+                    $this->filesData[$fileKey] = [
+                        'originalName' => Format::cleanupFilename($_FILES[$this->fileInputId]['name'][$i], true),
+                        'tmpName' => $_FILES[$this->fileInputId]['tmp_name'][$i],
                         'filename' => $nameWithoutExt,
                         'extension' => $extOnly,
-                        'desiredFilename' => $filename,
-                        'uploadSuccess' => true
+                        'desiredFilename' => $this->getUniqueName(true),
+                        'uploadSuccess' => true,
+                        'uploadIndex' => $uploadIndex
                     ];
-                }    
-            } catch (\Throwable $e) {
-                $this->addError($id, $e->getMessage(), false, true);
-            }
+                }
+            }    
+        } catch (\Throwable $e) {
+            $this->addError($this->fileInputId, $e->getMessage(), false, true);
         }
     }
 

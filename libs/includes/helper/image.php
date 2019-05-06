@@ -71,7 +71,7 @@ class Image {
                         break;
                     }
                     
-                    if ($img) {
+                    if ($img !== false) {
                         unset($img);
                         return true;
                     }    

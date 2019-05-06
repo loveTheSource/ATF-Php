@@ -32,6 +32,13 @@ class Mimetype {
         return $this->checkMimetypeExtension($file, 'archive');
     }
 
+    public function mimetypeIsDisplayable($mimetype) {
+        if (array_key_exists($mimetype, $this->mimeConf['mimetype_extension']['image'])) {
+            return true;
+        }
+        return false;
+    }
+
     /** */
     public function getExpectedType(\ATFApp\Helper\File $file) {
         $mime = $file->getMimeType();
