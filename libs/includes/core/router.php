@@ -194,29 +194,35 @@ class Router {
 
 		$routeParamsArray = $conf['routeparams'];
 		$routeParentsArray = $conf['parents'];
+		$routeSelf = $conf['self'];
 		$requestPathArray = explode('/', $requestPath);
 		$routeParamsFound = []; // [$key => $value, ...]
 
 		// search in self
 		foreach ($routeParamsArray as $paramName) {
-			if (strpos($conf['self'], ':' . $paramName) !== false) {
-				$tmpArr = explode('/', $conf['self']);
+			if (strpos($routeSelf, ':' . $paramName) !== false) {
+				if (substr($routeSelf, 0, 1) === "/") {
+					$routeSelf = substr($routeSelf, 1);
+				}				
+				$tmpArr = explode('/', $routeSelf);
+
 				$tmpCounter = 0;
 				foreach ($tmpArr as $tmpElem) {
 					if ($tmpElem === ':' . $paramName) {
-						$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + count($routeParentsArray) - 1];
+						$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + $conf['parentsCount'] - 1];
 					}
 					$tmpCounter++;
 				}
 			}	
 		}
-
+		
 		// search in parents
 		if (count($routeParamsFound) < count($routeParamsArray)) {
 			foreach ($routeParamsArray as $paramName) {
 				// check if already found before
 				if (!array_key_exists($paramName, $routeParamsFound)) {
-					$tmpCounter = 0;
+					$tmpCounterParents = 0;
+					$depth = 0;
 					foreach ($routeParentsArray as $parent) {
 						if (strpos($parent, ':' . $paramName) !== false) {
 							// param found in parent
@@ -224,18 +230,31 @@ class Router {
 								$parent = substr($parent, 1);
 							}				
 							$tmpArr = explode('/', $parent);
-							$tmpCounter2 = 0;
+							$tmpCounter = 0;
 							foreach ($tmpArr as $tmpElem) {
 								if ($tmpElem === ':' . $paramName) {
-									$routeParamsFound[$paramName] = $requestPathArray[$tmpCounter + $tmpCounter2];
+									$routeParamsFound[$paramName] = $requestPathArray[$depth];
 								}
-								$tmpCounter2++;
+								$tmpCounter++;
+								$tmpCounterParents += $tmpCounter;
+								$depth++;
 							}
+						} else {
+							if (substr($parent, 0, 1) === "/") {
+								$parent = substr($parent, 1);
+							}				
+							$tmpArr = explode('/', $parent);
+							$depth += count($tmpArr) - 1;
 						}
-						$tmpCounter++;
+						$tmpCounterParents++;
+						$depth++;
 					}	
 				}
 			}
+		}
+
+		if (count($routeParamsFound) < count($routeParamsArray)) {
+			throw new Exceptions\Custom("could not find all route params", null, null, [$routeParamsFound, $routeParamsArray]);
 		}
 
 		foreach ($routeParamsFound as $key => $val) {
@@ -297,6 +316,7 @@ class Router {
 		$routeConf['routeparams'] = $parentsRouteParams;
 
 		$routeConf['parents'] = $parents;
+		$routeConf['parentsCount'] = count($parents) + count($parentsRouteParams);
 		$routeConf['self'] = $routeKey;
 
 		if (array_key_exists('subroutes', $routeConf)) {
