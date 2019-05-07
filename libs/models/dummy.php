@@ -43,14 +43,16 @@ class Dummy extends SimpleModel {
 			'length' => 64
 		],
 		'profile' => [
-			'type' => 'text'
+			'type' => 'text',
+			'null' => true
 		],
 		'is_admin' => [
 			'type' => 'int',
 			'length' => 1
 		],
 		'last_login' => [
-			'type' => 'timestamp'
+			'type' => 'timestamp',
+			'null' => true
 		]
 	];
 	

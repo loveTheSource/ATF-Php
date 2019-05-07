@@ -85,26 +85,34 @@ abstract class BaseModel {
 		$colSettings = $this->tableColumns[$col];
 		$fixed = null;
 
-		switch ($colSettings['type']) {
-			case 'string':
-				$fixed = substr((string)$value, 0, $colSettings['length']);
-				break;
+		if (is_null($value) && isset($colSettings['null']) && $colSettings['null'] === true) {
+			$fixed = null;
+		} else {
+			switch ($colSettings['type']) {
+				case 'string':
+					$fixed = substr((string)$value, 0, $colSettings['length']);
+					break;
 
-			case 'int':
-				$fixed = (int)(substr($value, 0, $colSettings['length']));
-				break;
+				case 'int':
+					$fixed = (int)(substr($value, 0, $colSettings['length']));
+					break;
 
-			case 'timestamp':
-				if (preg_match('/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/', $value)) {
+				case 'double':
+					$fixed = (double)(substr($value, 0, $colSettings['length']));
+					break;
+
+				case 'timestamp':
+					if (preg_match('/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/', $value)) {
+						$fixed = $value;
+					} elseif (in_array(strtoupper($value), ['NOW()', 'CURRENT_TIMESTAMP()'])) {
+						$fixed = strtoupper($value);
+					}
+					break;
+
+				case 'text':	// text column
+				default: 	// plus all others
 					$fixed = $value;
-				} elseif (in_array(strtoupper($value), ['NOW()', 'CURRENT_TIMESTAMP()'])) {
-					$fixed = strtoupper($value);
-				}
-				break;
-
-			case 'text':	// text column
-			default: 	// plus all others
-				$fixed = $value;
+			}
 		}
 
 		return $fixed;
