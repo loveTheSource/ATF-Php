@@ -228,17 +228,23 @@ abstract class SimpleModel extends BaseModel {
 	 * select rows from db by columns/values
 	 * 
 	 * @param array $columnValues
-	 * @param $boolean $ignoreCache
+	 * @param boolean $ignoreCache
+	 * @param array $order ['col1'=>'asc', 'col2'=>'desc']
+	 * @param int $start
+	 * @param int $limit
 	 * @throws Exception\Db
 	 * @return boolean|array false or an array of models 
 	 */
-	public function selectByColumns(Array $columnValues, $ignoreCache=false, $order = []) {
+	public function selectByColumns(Array $columnValues, $ignoreCache=false, $order = [], $start=0, $limit=null) {
 		$cacheKey = 'selByCols_' . $this->getTable() . '_';
 		foreach ($columnValues AS $col => $val) {
 			$cacheKey .= $col . '=' . $val . '-';
 		}
 		foreach ($order AS $col => $val) {
 			$cacheKey .= $col . '=O=' . $val . '-';
+		}
+		if (!is_null($limit)) {
+			$cacheKey .= 's'. (int)$start . 'l' . (int)$limit;
 		}
 		if (!$ignoreCache && ProjectConstants::MODELS_QUERY_CACHE) {
 			$cacheResult = $this->getFromQueryCache($cacheKey);
@@ -275,6 +281,14 @@ abstract class SimpleModel extends BaseModel {
 			}
 		}
 
+		if (!is_null($limit)) {
+			if ($this->getDbConnectionType() === ProjectConstants::DB_CONNECTION_TYPE_PGSQL) {
+				$query .= " LIMIT " . (int)$limit . " OFFSET " . (int)$start;
+			} else {
+				$query .= " LIMIT " . (int)$start . ", " . (int)$limit;
+			}
+		}
+		
 		$query .= "; ";
 
 		$statementHandler = Includer::getStatementHandler($query, $this->dbConnection);
