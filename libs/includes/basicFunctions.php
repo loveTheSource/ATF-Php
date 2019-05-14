@@ -66,6 +66,9 @@ class BasicFunctions {
 		return self::getEnv() == "production";
 	}
 	
+	/**
+	 * get ENVIRONMENT const
+	 */
 	public static function getEnv() {
 		if (defined('ENVIRONMENT')) {
 			return ENVIRONMENT;
@@ -306,6 +309,30 @@ class BasicFunctions {
 			'type' => $type,
 			'msg' => $msg,
 			'permanent' => $permanent
+		];
+		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_SYSTEM_MSG, $messages);
+	}
+	
+	/**
+	 * add new system message from translation
+	 * 
+	 * @param string $type
+	 * @param string $langPack
+	 * @param string $langKey
+	 * @param string|array $format
+	 */
+	public static function addMessageTranslation($type, $langPack, $langKey, $format=false) {
+		$msg = self::getLangText($langPack, $langKey, $format);
+
+		$messages = Core\Request::getParamGlobals(ProjectConstants::KEY_GLOBAL_SYSTEM_MSG);
+		if (is_null($messages)) {
+			$messages = [];
+			
+		}
+		$messages[] = [
+			'type' => $type,
+			'msg' => $msg,
+			'permanent' => false
 		];
 		Core\Request::setParamGlobals(ProjectConstants::KEY_GLOBAL_SYSTEM_MSG, $messages);
 	}
