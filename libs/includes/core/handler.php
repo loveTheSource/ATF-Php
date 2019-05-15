@@ -88,21 +88,25 @@ class Handler {
 	private function getContentHtml($action) {
 		$actionMethod = $action . 'Action';
 		if ($this->controllerObj->canAccess()) {
-			$actionContent = $this->controllerObj->$actionMethod();
-			
-			if (is_string($actionContent)) {
-				return $actionContent;
-			} elseif (is_array($actionContent)) {
-				$template = Factory::getTemplateObj();
-				if (is_array($actionContent)) {
-					foreach ($actionContent AS $key => $value) {
-						$template->setData($key, $value);
+			if ($this->moduleObj && !$this->moduleObj->canAccess()) {
+				$this->handleAccessDenied();
+			} else {
+				$actionContent = $this->controllerObj->$actionMethod();
+				
+				if (is_string($actionContent)) {
+					return $actionContent;
+				} elseif (is_array($actionContent)) {
+					$template = Factory::getTemplateObj();
+					if (is_array($actionContent)) {
+						foreach ($actionContent AS $key => $value) {
+							$template->setData($key, $value);
+						}
 					}
+					$html = $template->renderAction();
+					return $html;
 				}
-				$html = $template->renderAction();
-				return $html;
+				return "";
 			}
-			return "";
 		} else {
 			$this->handleAccessDenied();
 		}
